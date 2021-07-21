@@ -69,6 +69,15 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>hdt_6dof_a24_pincer_description</exec_depend>
+  <exec_depend>rosserial_python</exec_depend>
+  <exec_depend>rosserial_python</exec_depend>
+  <exec_depend>hdt_adroit_control</exec_depend>
+  <exec_depend>hdt_adroit_debug</exec_depend>
+  <exec_depend>rqt_gui</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>hdt_6dof_a24_pincer_bringup</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
