@@ -1,25 +1,25 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>project_repo</name>
-  <version>0.0.0</version>
-  <description>The project_repo package</description>
+  <name>greedy_search</name>
+  <version>0.0.1</version>
+  <description>greedy search algorithm library</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="sarah@todo.todo">sarah</maintainer>
+  <maintainer email="sarahziselman2020@u.northwestern.edu">Sarah Ziselman</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>Apache License 2.0cd </license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/project_repo</url> -->
+  <!-- <url type="website">http://wiki.ros.org/greedy_search</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
