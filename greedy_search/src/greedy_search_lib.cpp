@@ -1,11 +1,11 @@
-#include "greedy_search_lib.hpp"
+#include "greedy_search/greedy_search_lib.hpp"
 
 namespace greedy_search
 {
     Block::Block()
     {
-        pose.position.x = 0.0
-        pose.position.y = 0.0
+        pose.position.x = 0.0;
+        pose.position.y = 0.0;
         pose.position.z = dimensions[2]/2;
         
         tf2::Quaternion quat;
@@ -15,7 +15,7 @@ namespace greedy_search
 
     Block::Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose)
     {
-        dimensions = block_dimensions
+        dimensions = block_dimensions;
         pose = block_pose;
     }
 
@@ -31,40 +31,45 @@ namespace greedy_search
         return visible / time;
     }
 
-    GreedySearch::GreedySearch(std::vector<geometry_msgs::Pose> &block_poses)
+    GreedySearch::GreedySearch(std::vector<Block> & blocks)
     {
-        num = block_poses.size();
+        num = blocks.size();
 
-        // for each pose, initialize a block object
-        for (int i = 0; i < num; i++)
-        {
-            Block::Block block = Block::Block(block_poses[i]);
-            block.id = to_string(i);
+        // // for each pose, initialize a block object
+        // for (int i = 0; i < num; i++)
+        // {
+        //     Block block = Block(block_poses[i]);
+        //     block.id = to_string(i);
 
-            objects.push_back(block);
-        }
+        //     objects.push_back(block);
+        // }
+        objects = blocks;
     }
 
-    void GreedySearch::update_objects(std::vector<geometry_msgs::Pose> &block_poses)
+    void GreedySearch::update_objects(std::vector<Block> & blocks)
     {
-        num = block_poses.size();
+        num = blocks.size();
 
-        for (int i = 0; i < num; i++)
-        {
-            // objects[i] = Block::Block(block_poses[i]);
-            Block::Block block = Block::Block(block_poses[i]);
-            block.id = to_string(i);
-            objects.push_back(block);
-        }
+        // for (int i = 0; i < num; i++)
+        // {
+        //     // objects[i] = Block::Block(block_poses[i]);
+        //     Block::Block block = Block::Block(block_poses[i]);
+        //     block.id = to_string(i);
+        //     objects.push_back(block);
+        // }
+        objects = blocks;
     }
 
     std::vector<Block> GreedySearch::get_arrangement(void)
     {
+        std::vector<Block> arrangement;
+
         // calculate the utility of each object
         for (auto object : objects)
         {
             object.calculate_utility();
         }
+        return arrangement;
     }
 
 }

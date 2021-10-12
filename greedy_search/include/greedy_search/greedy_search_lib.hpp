@@ -3,6 +3,7 @@
 
 #include <geometry_msgs/Pose.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <vector>
 #include <string>
@@ -41,12 +42,12 @@ namespace greedy_search
             double num;                     // number of objects visible
         public:
             /// \brief constructor for GreedySearch object
-            /// \param block_poses : a vector of poses that represent the blocks seen from the RealSense camera
-            GreedySearch(std::vector<geometry_msgs::Pose> &block_poses);
+            /// \param blocks : a vector of poses that represent the blocks seen from the RealSense camera
+            GreedySearch(std::vector<Block> & blocks);
 
             /// \brief updates the objects within the scene
             /// \param block_poses : a vector of poses that represent the blocks seen from the RealSense camera
-            void update_objects(std::vector<geometry_msgs::Pose> &block_poses);
+            void update_objects(std::vector<Block> & blocks);
 
             /// \brief gets the optimal arrangement using greedy search
             /// \return a list of blocks in order of arrangement

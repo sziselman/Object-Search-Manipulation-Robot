@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 
     std::vector<double> dimensions;
     std::vector<std::vector<double>> poses;
-    std::vector<geometry_msgs::Pose> block_poses;
+    std::vector<Block> blocks;
     std::vector<Block> arrangement;
 
     n.getParam("dimensions", dimensions);
@@ -35,10 +35,11 @@ int main(int argc, char* argv[])
         quat.setRPY(pose[3], pose[4], pose[5]);
         block_pose.orientation = tf2::toMsg(quat);
 
-        block_poses.push_back(block_pose);
+        Block block = Block(dimensions, block_pose);
+        blocks.push_back(block);
     }
 
-    GreedySearch greedy = GreedySearch(block_poses);
+    GreedySearch greedy = GreedySearch(blocks);
 
     while(ros::ok())
     {
