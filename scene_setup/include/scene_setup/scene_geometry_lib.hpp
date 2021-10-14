@@ -4,9 +4,24 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <geometry_msgs/Point.h>
 
 namespace scene
 {
+    struct CubeFace
+    {
+        geometry_msgs::Point lower_right;
+        geometry_msgs::Point lower_left;
+        geometry_msgs::Point upper_right;
+        geometry_msgs::Point upper_left;
+
+        CubeFace();
+
+        CubeFace(geometry_msgs::Point lr, geometry_msgs::Point ll, geometry_msgs::Point ur, geometry_msgs::Point ul);
+
+        CubeFace getShadow(double distance);
+    };
+
     class Scene
     {
         private:
@@ -23,14 +38,16 @@ namespace scene
             Scene();
 
             /// \brief create a scene given dimensions and distance
-            /// \param dims_f;
-            /// \param dist_f;
-            /// \param dist_r;
+            /// \param dims_f
+            /// \param dist_f
+            /// \param dist_r
             Scene(const std::vector<double> &dims_f, double dist_f, double dist_r);
 
             /// \brief inserts a rectangular object into the scene
-            
-            void insertObject(const std::vector<double> dims, std::vector<double> front_plane_pos);
+            /// \param dims dimensions of the object
+            /// \param pos position of the object
+            /// \returns the volume of the space that is blocked by the object
+            double getObjectVisibility(const std::vector<double> dims, geometry_msgs::Point pos);
     };
 }
 #endif
