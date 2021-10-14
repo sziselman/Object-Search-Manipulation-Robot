@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="debug" default="false" />
-  <arg name="simulation" default="false" />
+  <arg name="simulation" default="true" />
   <arg name="controller_type" default="xbox" />
   
   <!-- rqt console for filtering ROS logging messages by node
