@@ -1,56 +1,132 @@
 #include <ros/ros.h>
 #include <greedy_search/greedy_search_lib.hpp>
 #include <geometry_msgs/Pose.h>
+#include <visualization_msgs/Marker.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <vector>
 
-int main(int argc, char* argv[])
-{
-    using namespace greedy_search;
+class FakeSensor {
+    private:﻿
+        ros::NodeHandle n;
+        ros::Publisher arrangement_pub;
 
-    ros::init(argc, argv, "fake_real_sense");
-    ros::NodeHandle n;
+        // standard variables
+        std::vector<double> dimensions{1.0, 1.0, 1.0};
+        std::vector<visualization_msgs::Marker> objects;
+        std::vector<greedy_search::Block> blocks;
+        std::vector<greedy_search::Block> arrangement;
 
-    std::vector<double> dimensions;
-    std::vector<std::vector<double>> poses;
-    std::vector<Block> blocks;
-    std::vector<Block> arrangement;
+    public:
+        FakeSensor() {
+            initializePoses();
+            markers2blocks();
 
-    n.getParam("dimensions", dimensions);
-    n.getParam("block_poses", poses);
-
-    ros::Publisher object_pub = n.advertise<std::vector<std::vector<double>>>("/objects", 10);
-
-    ros::Rate loop_rate(100);
-
-    // create a vector of poses from the pose values loaded from the yaml file
-    for (auto pose: poses)
-    {
-        geometry_msgs::Pose block_pose;
-        block_pose.position.x = pose[0];
-        block_pose.position.y = pose[1];
-        block_pose.position.z = pose[2];
-
-        tf2::Quaternion quat;
-        quat.setRPY(pose[3], pose[4], pose[5]);
-        block_pose.orientation = tf2::toMsg(quat);
-
-        Block block = Block(dimensions, block_pose);
-        blocks.push_back(block);
-    }
-
-    GreedySearch greedy = GreedySearch(blocks);
-
-    while(ros::ok())
-    {
-        ros::spinOnce();
-
-        arrangement = greedy.get_arrangement();
-        ROS_INFO("arrangement found");
-        for (auto block : arrangement)
-        {
-            ROS_INFO("block order is: ");
-            ROS_INFO("block %i", block.id);
+            arrangement_pub = n.advertise<std::vector<Block>>("/arrangement", 10);
         }
-    }
+
+        void initializePoses(void) {
+            visualization_msgs::Marker marker;
+            marker.header.frame_id = "base_link";
+            marker.header.stamp = ros::Time::now();
+            marker.id = 0;
+
+            geometry_msgs::Pose block_pose;
+            block_pose.position.x = -1.5;
+            block_pose.position.y = 2.5;
+            block_pose.position.z = dimensions[2]/2;
+
+            tf2::Quaternion quat;
+            quat.setRPY(0.0, 0.0, 0.0);
+            block_pose.orientation = tf2::toMsg(quat);
+
+            marker.pose.pose = block_pose;
+
+            objects.push_back(marker);
+
+            marker.header.frame_id = "base_link";
+            marker.header.stamp = ros::Time::now();
+            marker.id = 1;
+
+            geometry_msgs::Pose block_pose;
+            block_pose.position.x = -0.5;
+            block_pose.position.y = 2.5;
+            block_pose.position.z = dimensions[2]/2;
+
+            tf2::Quaternion quat;
+            quat.setRPY(0.0, 0.0, 0.0);
+            block_pose.orientation = tf2::toMsg(quat);
+
+            marker.pose.pose = block_pose;
+
+            objects.push_back(marker);
+
+            marker.header.frame_id = "base_link";
+            marker.header.stamp = ros::Time::now();
+            marker.id = 2;
+
+            geometry_msgs::Pose block_pose;
+            block_pose.position.x = 0.5;
+            block_pose.position.y = 2.5;
+            block_pose.position.z = dimensions[2]/2;
+
+            tf2::Quaternion quat;
+            quat.setRPY(0.0, 0.0, 0.0);
+            block_pose.orientation = tf2::toMsg(quat);
+
+            marker.pose.pose = block_pose;
+
+            objects.push_back(marker);
+
+            marker.header.frame_id = "base_link";
+            marker.header.stamp = ros::Time::now();
+            marker.id = 3;
+
+            geometry_msgs::Pose block_pose;
+            block_pose.position.x = 1.5;
+            block_pose.position.y = 2.5;
+            block_pose.position.z = dimensions[2]/2;
+
+            tf2::Quaternion quat;
+            quat.setRPY(0.0, 0.0, 0.0);
+            block_pose.orientation = tf2::toMsg(quat);
+
+            marker.pose.pose = block_pose;
+
+            objects.push_back(marker);
+
+            return;
+        }
+
+        void markers2blocks(void) {
+            for (auto object : objects) {
+                Block block(dimensions, object.pose.pose, object.id);
+                blocks.push_back(block);
+            }
+
+            return;
+        }
+
+        void main_loop(void) {
+            using namespace greedy_search;
+
+            ros::Rate loop_rate(10);
+            GreedySearch greedy = GreedySearch(blocks);
+
+            while (ros::ok()) {
+                
+                // calculate the occluded visibility of the object
+                
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+
+            return;
+        }
+};
+
+int main(int argc, char* argv[]) {
+    ros::init(argc, argv, "fake_sensor");
+    FakeSensor node;
+    node.main_loop();
+    return 0;
 }

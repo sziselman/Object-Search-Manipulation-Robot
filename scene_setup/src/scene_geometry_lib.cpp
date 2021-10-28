@@ -84,7 +84,7 @@ namespace scene
         cout << "volume of scene is " << volume_scene << " m^2" << endl;
     }
 
-    double Scene::getObjectVisibility(const std::vector<double> dims, geometry_msgs::Point pos)
+    double Scene::getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose)
     {
         using namespace std;
 
@@ -97,25 +97,25 @@ namespace scene
         std::cout << "volume of the object is " << object_volume << endl;
 
         // distance between the front face of the object and the rear plane of the scene
-        double h = rear_dist - pos.y + (dims[1] / 2);
+        double h = rear_dist - pose.position.y + (dims[1] / 2);
         std::cout << "distance between two planes of frustum is " << h << endl;
 
         CubeFace object_face;
-        object_face.lower_right.x = pos.x + (dims[0] / 2);
-        object_face.lower_right.y = pos.y - (dims[1] / 2);
-        object_face.lower_right.z = pos.z - (dims[2] / 2);
+        object_face.lower_right.x = pose.position.x + (dims[0] / 2);
+        object_face.lower_right.y = pose.position.y - (dims[1] / 2);
+        object_face.lower_right.z = pose.position.z - (dims[2] / 2);
 
-        object_face.lower_left.x = pos.x - (dims[0] / 2);
-        object_face.lower_left.y = pos.y - (dims[1] / 2);
-        object_face.lower_left.z = pos.z - (dims[2] / 2);
+        object_face.lower_left.x = pose.position.x - (dims[0] / 2);
+        object_face.lower_left.y = pose.position.y - (dims[1] / 2);
+        object_face.lower_left.z = pose.position.z - (dims[2] / 2);
 
-        object_face.upper_right.x = pos.x + (dims[0] / 2);
-        object_face.upper_right.y = pos.y - (dims[1] / 2);
-        object_face.upper_right.z = pos.z + (dims[2] / 2);
+        object_face.upper_right.x = pose.position.x + (dims[0] / 2);
+        object_face.upper_right.y = pose.position.y - (dims[1] / 2);
+        object_face.upper_right.z = pose.position.z + (dims[2] / 2);
 
-        object_face.upper_left.x = pos.x - (dims[0] / 2);
-        object_face.upper_left.y = pos.y - (dims[1] / 2);
-        object_face.upper_left.z = pos.z + (dims[2] / 2);
+        object_face.upper_left.x = pose.position.x - (dims[0] / 2);
+        object_face.upper_left.y = pose.position.y - (dims[1] / 2);
+        object_face.upper_left.z = pose.position.z + (dims[2] / 2);
 
         CubeFace shadow_face = object_face.getShadow(rear_dist);
 

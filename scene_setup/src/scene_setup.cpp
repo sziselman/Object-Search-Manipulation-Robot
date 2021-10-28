@@ -2,37 +2,51 @@
 #include <vector>
 #include <iostream>
 #include "scene_setup/scene_geometry_lib.hpp"
+#include "scene_setup/Visibility.srv"
 
-int main(int argc, char* argv[])
-{
-    using namespace scene;
 
-    ros::init(argc, argv, "fake_scene_setup");
-    ros::NodeHandle n;
+class Scene {
+    private:
+        ros::NodeHandle n;
+        ros::ServiceServer visibility_service;
 
-    std::vector<double> dims_f{4.0, 3.0};
-    double dist_f = 3.5;
-    double dist_r = 7.5;
+        std::vector<double> front_dims{4.0, 3.0};
+        double dist_front = 2.0;
+        double dist_rear = 4.5;
+        std::vector<double> object_dims{1.0, 1.0, 1.0};
+        
+        scene::Scene search_scene;
 
-    // setup a scene based on the dimensions
-    Scene scene = Scene(dims_f, dist_f, dist_r);
+    public:
+        Scene() {
+            visibility_service = n.advertiseService("get_visibility", &Scene::visibility, this);
+            search_scene = Scene(front_dims, dist_front, dist_rear);
+        }
 
-    std::vector<double> object_dims{1.0, 1.0, 1.0};
-    geometry_msgs::Point object_pos;
-    object_pos.x = 0.5;
-    object_pos.y = 4.0;
-    object_pos.z = object_dims[2] / 2;
+        bool visibility(scene_setup::Visibility::Request& req,
+                        scene_setup::Visibility::Response& res) {
+            
+            double visibility = search_scene.getObjectVisibility(object_dims, req.pose.pose);
 
-    double visibility = scene.getObjectVisibility(object_dims, object_pos);
+            res = visibility;
+            return true;
+        }
 
-    std::cout << visibility << std::endl;
+        void main_loop(void) {
 
-    ros::Rate loop_rate(100);
+            ros::Rate loop_rate(10);
 
-    while(ros::ok())
-    {
-        ros::spinOnce();
-    }
+            while (ros::ok()) {
+                ros::spinOnce();
+                loop_rate.sleep();
+            }
+            return;
+        }
+};
 
+int main(int argc, char* argv[]) {
+    ros::init(argc, argv, "scene_setup");
+    Scene node;
+    node.main_loop();
     return 0;
 }

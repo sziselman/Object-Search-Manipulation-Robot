@@ -13,19 +13,20 @@ namespace greedy_search
         pose.orientation = tf2::toMsg(quat);
     }
 
-    Block::Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose)
+    Block::Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose, int block_id)
     {
         dimensions = block_dimensions;
         pose = block_pose;
+        id = block_id;
     }
 
     double Block::calculate_utility(void)
     {
         // the number of target poses that become visible once the object is removed
-        double visible;
+        double visibility;
 
         // estimate of time necessary to execute the trajectory of the robot
-        double time;
+        double execution_time;
 
         // the estimated utility of the block
         return visible / time;
@@ -34,29 +35,12 @@ namespace greedy_search
     GreedySearch::GreedySearch(std::vector<Block> & blocks)
     {
         num = blocks.size();
-
-        // // for each pose, initialize a block object
-        // for (int i = 0; i < num; i++)
-        // {
-        //     Block block = Block(block_poses[i]);
-        //     block.id = to_string(i);
-
-        //     objects.push_back(block);
-        // }
         objects = blocks;
     }
 
     void GreedySearch::update_objects(std::vector<Block> & blocks)
     {
         num = blocks.size();
-
-        // for (int i = 0; i < num; i++)
-        // {
-        //     // objects[i] = Block::Block(block_poses[i]);
-        //     Block::Block block = Block::Block(block_poses[i]);
-        //     block.id = to_string(i);
-        //     objects.push_back(block);
-        // }
         objects = blocks;
     }
 

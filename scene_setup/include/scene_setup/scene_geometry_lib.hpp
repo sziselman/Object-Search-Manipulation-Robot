@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-#include <geometry_msgs/Point.h>
+#include <geometry_msgs/Pose.h>
 
 namespace scene
 {
@@ -47,7 +47,7 @@ namespace scene
             /// \param dims dimensions of the object
             /// \param pos position of the object
             /// \returns the volume of the space that is blocked by the object
-            double getObjectVisibility(const std::vector<double> dims, geometry_msgs::Point pos);
+            double getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose);
     };
 }
 #endif
