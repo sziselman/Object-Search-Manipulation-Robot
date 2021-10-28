@@ -29,10 +29,12 @@ class ManipulatorArm {
         ros::Publisher pincer_pub;
         ros::ServiceServer execution_time_service;
         
+        moveit::planning_interface::MoveGroupInterface arm_move_group;
+        
         // move it variables
         std::string ARM_PLANNING_GROUP = "arm";
     public:
-        ManipulatorArm() {
+        ManipulatorArm() : arm_move_group {
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
             execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
         }

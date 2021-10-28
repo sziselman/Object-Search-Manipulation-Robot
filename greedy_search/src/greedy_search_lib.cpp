@@ -23,13 +23,13 @@ namespace greedy_search
     double Block::calculate_utility(void)
     {
         // the number of target poses that become visible once the object is removed
-        double visibility;
+        double visibility = 0;
 
         // estimate of time necessary to execute the trajectory of the robot
-        double execution_time;
+        double execution_time = 1;
 
         // the estimated utility of the block
-        return visible / time;
+        return visibility / execution_time;
     }
 
     GreedySearch::GreedySearch(std::vector<Block> & blocks)
@@ -46,14 +46,23 @@ namespace greedy_search
 
     std::vector<Block> GreedySearch::get_arrangement(void)
     {
-        std::vector<Block> arrangement;
+        for (int i = 0; i < objects.size()-1; i++) {
+            for (int j = i+1; j < objects.size(); j++) {
 
-        // calculate the utility of each object
-        for (auto object : objects)
-        {
-            object.calculate_utility();
+                // calculate the utility
+                double utility1 = objects[i].calculate_utility();
+                double utility2 = objects[j].calculate_utility();
+
+                // if the utility of ind i is greater than utility of ind j, swap
+                if (utility1 > utility2) {
+                    Block temp = objects[i];
+                    objects[i] = objects[j];
+                    objects[j] = temp;
+                }
+            }
         }
-        return arrangement;
+        
+        return objects;
     }
 
 }

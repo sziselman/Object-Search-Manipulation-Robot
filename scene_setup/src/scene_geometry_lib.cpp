@@ -70,7 +70,7 @@ namespace scene
         getSceneGeometry();
     }
 
-    Scene::Scene(const std::vector<double> &dims_f, double dist_f, double dist_r)
+    Scene::Scene(std::vector<double> dims_f, double dist_f, double dist_r)
     {
         using namespace std;
 

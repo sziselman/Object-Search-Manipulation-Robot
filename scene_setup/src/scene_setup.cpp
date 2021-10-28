@@ -2,10 +2,10 @@
 #include <vector>
 #include <iostream>
 #include "scene_setup/scene_geometry_lib.hpp"
-#include "scene_setup/Visibility.srv"
+#include "scene_setup/Visibility.h"
 
 
-class Scene {
+class ObjectScene {
     private:
         ros::NodeHandle n;
         ros::ServiceServer visibility_service;
@@ -18,17 +18,15 @@ class Scene {
         scene::Scene search_scene;
 
     public:
-        Scene() {
-            visibility_service = n.advertiseService("get_visibility", &Scene::visibility, this);
-            search_scene = Scene(front_dims, dist_front, dist_rear);
+        ObjectScene() {
+            visibility_service = n.advertiseService("get_visibility", &ObjectScene::visibility, this);
+            search_scene = scene::Scene(front_dims, dist_front, dist_rear);
         }
 
         bool visibility(scene_setup::Visibility::Request& req,
                         scene_setup::Visibility::Response& res) {
-            
-            double visibility = search_scene.getObjectVisibility(object_dims, req.pose.pose);
 
-            res = visibility;
+            res.visibility = search_scene.getObjectVisibility(object_dims, req.pose);
             return true;
         }
 
@@ -46,7 +44,7 @@ class Scene {
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "scene_setup");
-    Scene node;
+    ObjectScene node;
     node.main_loop();
     return 0;
 }

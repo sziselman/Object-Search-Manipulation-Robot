@@ -41,7 +41,7 @@ namespace scene
             /// \param dims_f
             /// \param dist_f
             /// \param dist_r
-            Scene(const std::vector<double> &dims_f, double dist_f, double dist_r);
+            Scene(std::vector<double> dims_f, double dist_f, double dist_r);
 
             /// \brief inserts a rectangular object into the scene
             /// \param dims dimensions of the object
