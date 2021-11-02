@@ -1,0 +1,16 @@
+<launch>
+    <arg name="sim" default="true" doc="argument used to determine if running in simulation"/>
+    <include file="$(find manipulator_control)/launch/hdt_arm_bringup_1.launch">
+        <arg name="simulation" value="$(arg sim)"/>
+    </include>
+
+    <include file="$(find hdt_6dof_a24_pincer_moveit)/launch/planning_context.launch">
+        <!-- <arg name="load_robot_discription" value="true"/> -->
+    </include>
+
+    <node name="manipulator_control" pkg="manipulator_control" type="manipulator_control" output="screen">
+        <rosparam command="load" file="$(find hdt_6dof_a24_pincer_moveit)/config/kinematics.yaml"/>
+    </node>
+
+    <rosparam command="load" file="$(find manipulator_control)/config/adroit_params.yaml"/>
+</launch>

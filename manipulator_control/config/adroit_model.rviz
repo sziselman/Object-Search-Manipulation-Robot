@@ -1,6 +1,6 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 138
+    Help Height: 0
     Name: Displays
     Property Tree Widget:
       Expanded:
@@ -13,7 +13,7 @@ Panels:
         - /TF1
         - /TF1/Frames1
       Splitter Ratio: 0.7425600290298462
-    Tree Height: 316
+    Tree Height: 454
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -56,7 +56,6 @@ Visualization Manager:
       MoveIt_Allow_External_Program: false
       MoveIt_Allow_Replanning: false
       MoveIt_Allow_Sensor_Positioning: false
-      MoveIt_Goal_Tolerance: 0
       MoveIt_Planning_Attempts: 10
       MoveIt_Planning_Time: 5
       MoveIt_Use_Cartesian_Path: false
@@ -545,7 +544,7 @@ Visualization Manager:
       Marker Topic: /joystick_control_status
       Name: Marker
       Namespaces:
-        "": true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/TF
@@ -626,6 +625,115 @@ Visualization Manager:
                                           {}
       Update Interval: 0
       Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        distal_tube_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive3_housing_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        drive4_housing_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive4_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        drive5_housing_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive5_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        drive6_housing_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        drive6_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        elbow_box_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        endpoint_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        pedestal_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pincer_housing_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pincer_output:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        pincerfinger_left_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pincerfinger_right_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        proximal_tube_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+      Name: RobotModel
+      Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -642,7 +750,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.055039882659912
+      Distance: 2.5849623680114746
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -674,7 +782,7 @@ Window Geometry:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000043d000006cafc0200000008fb000000100044006900730070006c006100790073010000006e000002340000018200fffffffb0000000800480065006c00700000000342000000bb000000d400fffffffb0000000a0056006900650077007300000003b0000000b00000013200fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000007a00fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002ae00000404000002b800fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006901000006be0000007a0000007a00ffffff00000777000006ca00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000043d000006cafc0200000008fb000000100044006900730070006c006100790073010000006e000002340000018200fffffffb0000000800480065006c00700000000342000000bb000000d400fffffffb0000000a0056006900650077007300000003b0000000b00000013200fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000002600000026fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002ae00000404000002b800fffffffb00000024005200760069007a00560069007300750061006c0054006f006f006c007300470075006901000006be0000007a0000007a00ffffff00000777000006ca00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   RvizVisualToolsGui:
     collapsed: false
   Views:

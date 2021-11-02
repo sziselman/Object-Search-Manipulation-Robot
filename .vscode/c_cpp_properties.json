@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/sarah/Documents/Object_Search_Robot/ws/devel/include/**",
+        "/opt/ros/noetic/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/project_repo/greedy_search/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/hdt_6dof_a24_pincer/hdt_adroit_control/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/hdt_6dof_a24_pincer/hdt_adroit_debug/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/hdt_6dof_a24_pincer/hdt_generic_joystick/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/project_repo/manipulator_control/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/project_repo/object_search/include/**",
+        "/home/sarah/Documents/Object_Search_Robot/ws/src/project_repo/scene_setup/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS"
+    }
+  ],
+  "version": 4
+}

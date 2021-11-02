@@ -19,32 +19,38 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <std_msgs/Float64.h>
 
-#include "manipulator_control/TrajectoryExecution.h"
+// #include "manipulator_control/TrajectoryExecution.h"
 
-// #include "control/control_library.hpp"
 
 class ManipulatorArm {
     private:
+        // ros variables
         ros::NodeHandle n;
         ros::Publisher pincer_pub;
         ros::ServiceServer execution_time_service;
-        
-        moveit::planning_interface::MoveGroupInterface arm_move_group;
-        
+
         // move it variables
-        std::string ARM_PLANNING_GROUP = "arm";
+        moveit::planning_interface::MoveGroupInterface arm_move_group;
+        moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
+        const moveit::core::JointModelGroup* arm_model_group;
+
+        moveit_visual_tools::MoveItVisualTools visual_tools;
+
     public:
-        ManipulatorArm() : arm_move_group {
+        ManipulatorArm(std::string planning_group, std::string frame) : arm_move_group(planning_group),
+                                                                        visual_tools(frame) {
+
+            // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
-            execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
+            // execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
         }
 
-        bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
-                           manipulator_control::TrajectoryExecution::Response &res) {
+        // bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
+        //                    manipulator_control::TrajectoryExecution::Response &res) {
             
             
-            return true;
-        }
+        //     return true;
+        // }
 
         void main_loop(void) {
             ros::Rate loop_rate(100);
@@ -52,9 +58,6 @@ class ManipulatorArm {
             spinner.start();
 
             // move group setup
-            moveit::planning_interface::MoveGroupInterface arm_move_group(ARM_PLANNING_GROUP);
-            moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-            const moveit::core::JointModelGroup* arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(ARM_PLANNING_GROUP);
 
             namespace rvt = rviz_visual_tools;
             moveit_visual_tools::MoveItVisualTools visual_tools("base_link");
@@ -77,7 +80,9 @@ class ManipulatorArm {
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "manipulator_control");
-    ManipulatorArm node;
+    std::string ARM_PLANNING_GROUP = "arm";
+    std::string base_link = "base_link";
+    ManipulatorArm node = ManipulatorArm(ARM_PLANNING_GROUP, base_link);
     node.main_loop();
     return 0;
 }
