@@ -19,7 +19,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <std_msgs/Float64.h>
 
-// #include "manipulator_control/TrajectoryExecution.h"
+#include "manipulator_control/TrajectoryExecution.h"
 
 
 class ManipulatorArm {
@@ -42,15 +42,20 @@ class ManipulatorArm {
 
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
-            // execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
+            execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
         }
 
-        // bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
-        //                    manipulator_control::TrajectoryExecution::Response &res) {
+        bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
+                           manipulator_control::TrajectoryExecution::Response &res) {
             
-            
-        //     return true;
-        // }
+            arm_move_group.setPoseTarget(req.pose);
+
+            moveit::planning_interface::MoveGroupInterface::Plan plan;
+            bool success = (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+
+            res.duration = arm_move_group.getPlanningTime();
+            return true;
+        }
 
         void main_loop(void) {
             ros::Rate loop_rate(100);
