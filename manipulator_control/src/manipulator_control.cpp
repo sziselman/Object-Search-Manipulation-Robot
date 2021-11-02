@@ -76,7 +76,8 @@ class ManipulatorArm {
             visual_tools.trigger();
 
             while(ros::ok()) {
-
+                ros::spinOnce();
+                loop_rate.sleep();
             }
 
             return;

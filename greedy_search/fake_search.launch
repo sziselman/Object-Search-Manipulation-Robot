@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find manipulator_control)/launch/manipulator.launch">
+        <arg name="sim" value="true"/>
+    </include>
+
+    <node name="scene_setup" pkg="scene_setup" type="scene_setup" output="screen"/>
+
+    <node name="fake_search" pkg="greedy_search" type="fake_search" output="screen"/>
+</launch>

@@ -15,6 +15,8 @@ namespace greedy_search
     {
         std::vector<double> dimensions;
         geometry_msgs::Pose pose;
+        double visibility;
+        double execution_time;
         double utility;
         int id;
 
@@ -27,6 +29,9 @@ namespace greedy_search
         /// \return a block at specified position and orientation
         Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose, int block_id);
 
+        void updateVisibility(void);
+
+        void updateExecutionTime(void);
         /// \brief calculates the utility (V/T)
         /// \return the utility of the block
         double calculate_utility(void);

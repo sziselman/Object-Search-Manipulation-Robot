@@ -55,6 +55,8 @@
   <build_depend>visualization_msgs</build_depend>
   <build_depend>tf2</build_depend>
   <build_depend>geometry_msgs</build_depend>
+  <build_depend>manipulator_control</build_depend>
+  <build_depend>scene_setup</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>

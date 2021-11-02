@@ -63,6 +63,7 @@
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>geometry_msgs</build_export_depend>
   
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
@@ -77,6 +78,7 @@
   <exec_depend>rqt_gui</exec_depend>
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>hdt_6dof_a24_pincer_bringup</exec_depend>
+  <exec_depend>hdt_6dof_a24_pincer_moveit</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
