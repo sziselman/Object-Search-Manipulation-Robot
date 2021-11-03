@@ -13,7 +13,7 @@ namespace greedy_search
         pose.orientation = tf2::toMsg(quat);
     }
 
-    Block::Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose, int block_id)
+    Block::Block(std::vector<double> block_dimensions, geometry_msgs::Pose block_pose, int block_id)
     {
         dimensions = block_dimensions;
         pose = block_pose;

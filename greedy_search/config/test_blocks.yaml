@@ -1,5 +1,0 @@
-# dimensions of blocks
-dimensions: [0.1, 0.1, 0.1]
-
-# test positions and orientations of blocks
-block_poses: [[1.0, 1.0, 0.05, 0.0, 0.0, 0.0], [0.85, 1.0, 0.05, 0.0, 0.0, 0.0], [0.95, 1.25, 0.05, 0.0, 0.0, 0.0]]

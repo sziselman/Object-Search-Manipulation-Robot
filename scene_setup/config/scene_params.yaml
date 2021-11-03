@@ -1,0 +1,5 @@
+front_plane_dimensions: [0.4, 0.3]
+front_plane_distance: 0.2
+rear_plane_distance: 0.45
+object_dimensions: [0.1, 0.1, 0.1]
+frequency: 100

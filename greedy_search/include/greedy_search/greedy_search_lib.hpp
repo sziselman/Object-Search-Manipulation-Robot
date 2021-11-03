@@ -15,10 +15,10 @@ namespace greedy_search
     {
         std::vector<double> dimensions;
         geometry_msgs::Pose pose;
+        int id;
         double visibility;
         double execution_time;
         double utility;
-        int id;
 
         /// \brief constructor that creates a block located at (0.0, 0.0)
         /// \return block at origin
@@ -27,7 +27,7 @@ namespace greedy_search
         /// \brief constructor that takes a position and orientation
         /// \param block_pose a six dimensional vector containing position and orientation
         /// \return a block at specified position and orientation
-        Block(std::vector<double> & block_dimensions, geometry_msgs::Pose & block_pose, int block_id);
+        Block(std::vector<double> block_dimensions, geometry_msgs::Pose block_pose, int block_id);
 
         void updateVisibility(void);
 

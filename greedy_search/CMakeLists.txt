@@ -101,8 +101,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
- LIBRARIES ${PROJECT_NAME}
+#  INCLUDE_DIRS include
+#  LIBRARIES ${PROJECT_NAME}
  CATKIN_DEPENDS roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -148,9 +148,7 @@ add_executable(fake_search src/fake_search.cpp)
 add_dependencies(fake_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
-target_link_libraries(fake_search
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(fake_search ${catkin_LIBRARIES})
 
 #############
 ## Install ##

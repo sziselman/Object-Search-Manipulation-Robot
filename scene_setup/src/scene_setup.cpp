@@ -1,40 +1,62 @@
 #include <ros/ros.h>
 #include <vector>
 #include <iostream>
+
 #include "scene_setup/scene_geometry_lib.hpp"
 #include "scene_setup/Visibility.h"
 
 
 class ObjectScene {
     private:
+        // ros objects
         ros::NodeHandle n;
         ros::ServiceServer visibility_service;
 
-        std::vector<double> front_dims{4.0, 3.0};
-        double dist_front = 2.0;
-        double dist_rear = 4.5;
-        std::vector<double> object_dims{1.0, 1.0, 1.0};
+        // parameters
+        std::vector<double> object_dimensions;
+        std::vector<double> front_plane_dimensions;
+        double front_plane_distance;
+        double rear_plane_distance;
+
+        int frequency;
         
+        // variables
         scene::Scene search_scene;
 
     public:
         ObjectScene() {
+            load_parameters();
+
+            search_scene = scene::Scene(front_plane_dimensions, front_plane_distance, rear_plane_distance);
+
             visibility_service = n.advertiseService("get_visibility", &ObjectScene::visibility, this);
-            search_scene = scene::Scene(front_dims, dist_front, dist_rear);
         }
+
+        /// \brief load_parameters
+        /// function that loads parameters from the parameter server
+        void load_parameters(void) {
+            n.getParam("frequency", frequency);
+            n.getParam("front_plane_dimensions", front_plane_dimensions);
+            n.getParam("front_plane_distance", front_plane_distance);
+            n.getParam("rear_plane_distance", rear_plane_distance);
+            n.getParam("object_dimensions", object_dimensions);
+            return;
+        }
+
 
         bool visibility(scene_setup::Visibility::Request& req,
                         scene_setup::Visibility::Response& res) {
 
-            res.visibility = search_scene.getObjectVisibility(object_dims, req.pose);
+            res.visibility = search_scene.getObjectVisibility(object_dimensions, req.pose);
             return true;
         }
 
         void main_loop(void) {
 
-            ros::Rate loop_rate(10);
+            ros::Rate loop_rate(frequency);
 
             while (ros::ok()) {
+                
                 ros::spinOnce();
                 loop_rate.sleep();
             }

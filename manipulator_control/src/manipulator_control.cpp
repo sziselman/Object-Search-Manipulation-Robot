@@ -22,6 +22,8 @@
 #include "manipulator_control/TrajectoryExecution.h"
 
 
+static constexpr double PI=3.14159265358979323846;
+
 class ManipulatorArm {
     private:
         // ros variables
@@ -48,7 +50,16 @@ class ManipulatorArm {
         bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
                            manipulator_control::TrajectoryExecution::Response &res) {
             
-            arm_move_group.setPoseTarget(req.pose);
+            geometry_msgs::Pose grab_pose;
+            grab_pose.position.x = req.pose.position.x;
+            grab_pose.position.y = req.pose.position.y;
+            grab_pose.position.z = req.pose.position.z + 0.05;
+            
+            tf2::Quaternion grab_quat;
+            grab_quat.setRPY(PI/2, PI/2, 0.0);
+            grab_pose.orientation = tf2::toMsg(grab_quat);
+            
+            arm_move_group.setPoseTarget(grab_pose);
 
             moveit::planning_interface::MoveGroupInterface::Plan plan;
             bool success = (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);

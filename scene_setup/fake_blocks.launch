@@ -1,0 +1,5 @@
+<launch>
+    <rosparam command="load" file="$(find scene_setup)/config/scene_params.yaml"/>
+    <node name="fake_blocks" pkg="scene_setup" type="fake_blocks" output="screen"/>
+    <node name="scene_setup" pkg="scene_setup" type="scene_setup" output="screen"/>
+</launch>

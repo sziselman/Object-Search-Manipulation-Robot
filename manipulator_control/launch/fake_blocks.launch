@@ -1,0 +1,9 @@
+<launch>
+    <rosparam command="load" file="$(find scene_setup)/config/scene_params.yaml"/>
+
+    <node name="fake_manipulator_blocks" pkg="manipulator_control" type="fake_manipulator_blocks" output="screen"/>
+    
+    <include file="$(find manipulator_control)/launch/manipulator.launch">
+        <args name="sim" value="true"/>
+    </include>
+</launch>

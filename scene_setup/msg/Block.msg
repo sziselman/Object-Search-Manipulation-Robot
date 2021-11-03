@@ -1,4 +1,4 @@
 geometry_msgs/Pose pose
 float64[] dimensions
---- 
-float64 duration
+int64 id
+float64 utility
