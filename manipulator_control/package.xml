@@ -59,6 +59,7 @@
   <build_depend>moveit_visual_tools</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>message_runtime</build_depend>
+  <build_depend>trajectory_msgs</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
@@ -79,6 +80,7 @@
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>hdt_6dof_a24_pincer_bringup</exec_depend>
   <exec_depend>hdt_6dof_a24_pincer_moveit</exec_depend>
+  <exec_depend>scene_setup</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

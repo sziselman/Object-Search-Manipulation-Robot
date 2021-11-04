@@ -2,3 +2,4 @@ geometry_msgs/Pose pose
 float64[] dimensions
 --- 
 float64 duration
+bool success

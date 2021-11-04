@@ -80,8 +80,8 @@ namespace scene
 
         getSceneGeometry();
 
-        cout << "rear plane dimensions are " << rear_plane_dims[0] << ", " << rear_plane_dims[1] << endl;
-        cout << "volume of scene is " << volume_scene << " m^2" << endl;
+        // cout << "rear plane dimensions are " << rear_plane_dims[0] << ", " << rear_plane_dims[1] << endl;
+        // cout << "volume of scene is " << volume_scene << " m^2" << endl;
     }
 
     double Scene::getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose)
@@ -90,15 +90,15 @@ namespace scene
 
         // area of the front face of the object
         double object_front_area = dims[0] * dims[1];
-        std::cout << "area of front plane of object is " << object_front_area << endl;
+        // std::cout << "area of front plane of object is " << object_front_area << endl;
 
         // volume of the object
         double object_volume = dims[0] * dims[1] * dims[2];
-        std::cout << "volume of the object is " << object_volume << endl;
+        // std::cout << "volume of the object is " << object_volume << endl;
 
         // distance between the front face of the object and the rear plane of the scene
         double h = rear_dist - pose.position.y + (dims[1] / 2);
-        std::cout << "distance between two planes of frustum is " << h << endl;
+        // std::cout << "distance between two planes of frustum is " << h << endl;
 
         CubeFace object_face;
         object_face.lower_right.x = pose.position.x + (dims[0] / 2);
@@ -121,7 +121,7 @@ namespace scene
 
         double shadow_area = fabs(shadow_face.lower_right.x - shadow_face.lower_left.x) * fabs(shadow_face.upper_right.z - shadow_face.lower_right.z);
 
-        std::cout << "area of shadow is " << shadow_area << endl;
+        // std::cout << "area of shadow is " << shadow_area << endl;
         
         return ((h / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
     }

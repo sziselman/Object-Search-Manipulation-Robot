@@ -112,10 +112,20 @@ class FakeSearch {
                     //     ;
                     // }
 
-                    visibility = visibility_msg.response.visibility;
-                    exec_time = traj_msg.response.duration;
+                    if (visibility_client.call(visibility_msg) && execution_time_client.call(traj_msg)) {
+                        visibility = visibility_msg.response.visibility;
+                        std::cout << "visibility " << visibility << "\r" << std::endl;
 
-                    block.utility = visibility / exec_time;
+                        if (traj_msg.response.success == true) {
+                            exec_time = traj_msg.response.duration;
+                            std::cout << "execution time " << exec_time << "\r" << std::endl;
+                            block.utility = visibility/exec_time;
+                        }
+                        else {
+                            block.utility = 1e5;
+                        }
+                    }
+                    // block.utility = visibility / exec_time;
                     std::cout << "utility " << block.utility << "\r" << std::endl;
                 }
                 

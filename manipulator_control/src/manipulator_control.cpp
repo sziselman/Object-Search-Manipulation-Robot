@@ -13,6 +13,8 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TransformStamped.h>
 
+#include <trajectory_msgs/JointTrajectory.h>
+#include <trajectory_msgs/JointTrajectoryPoint.h>
 #include <string>
 
 #include <tf2/LinearMath/Quaternion.h>
@@ -64,7 +66,29 @@ class ManipulatorArm {
             moveit::planning_interface::MoveGroupInterface::Plan plan;
             bool success = (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
-            res.duration = arm_move_group.getPlanningTime();
+            if (success) {
+                // store the plan
+                arm_move_group.plan(plan);
+
+                // std::cout << "planned trajectory " << std::endl;
+
+                moveit_msgs::RobotTrajectory trajectory = plan.trajectory_;
+                trajectory_msgs::JointTrajectory joint_traj = trajectory.joint_trajectory;
+
+                // std::cout << "joint trajectory\r" << std::endl;
+
+                trajectory_msgs::JointTrajectoryPoint last_point = joint_traj.points[joint_traj.points.size()-1];
+                
+                // std::cout << "execution time " << last_point.time_from_start << "\r" << std::endl;
+                
+                res.success = true;
+                res.duration = last_point.time_from_start.toSec();
+            }
+            else {
+                res.success = false;
+                res.duration = 1e5;
+            }
+            
             return true;
         }
 
