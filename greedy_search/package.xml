@@ -57,14 +57,18 @@
   <build_depend>geometry_msgs</build_depend>
   <build_depend>manipulator_control</build_depend>
   <build_depend>scene_setup</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>message_runtime</build_depend>
 
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
+  <build_export_depend>scene_setup</build_export_depend>
   
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>manipulator_control</exec_depend>
   <exec_depend>scene_setup</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

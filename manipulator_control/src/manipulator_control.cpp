@@ -32,6 +32,8 @@ class ManipulatorArm {
         ros::NodeHandle n;
         ros::Publisher pincer_pub;
         ros::ServiceServer execution_time_service;
+        ros::ServiceServer remove_object_service;
+        ros::Publisher pincer_pub;
 
         // move it variables
         moveit::planning_interface::MoveGroupInterface arm_move_group;
@@ -47,6 +49,8 @@ class ManipulatorArm {
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
             execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
+            remove_object_service = n.advertiseService("/remove_object", &Manipulator::removeObject, this);
+            pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
         }
 
         bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
@@ -92,6 +96,36 @@ class ManipulatorArm {
             return true;
         }
 
+        bool removeObject(manipulator_control::RemoveObject::Request &req,
+                          manipulator_control::RemoveObject::Response &res) {
+            
+            // move the arm to the pre grasp pose
+            geometry_msgs::Pose pose;
+            tf2::Quaternion quat;
+            quat.setRPY(PI/2, PI/2 0);
+            pose.orientation = tf2::toMsg(quat);
+            pose.position.x = req.block.pose.position.x;
+            pose.position.y = req.block.pose.position.y;
+            pose.position.z = req.block.pose.position.z + 0.075;
+
+            arm_move_group.setPoseTarget(pose);
+            arm_move_group.move();
+
+            // move the arm to the grasp pose
+            pose.position.z = req.block.pose.position.z - 0.02;
+
+            arm_move_group.setPoseTarget(pose);
+            arm_move_group.move();
+            return true;
+
+            // close the grippers, attach brick to the move group
+            std_msgs::Float64 angle;
+            angle.data = 0.80;
+            pincer_pub.publish(close_angle);
+            // arm_move_group.attachObject("")
+
+
+        }
         void main_loop(void) {
             ros::Rate loop_rate(100);
             ros::AsyncSpinner spinner(1);

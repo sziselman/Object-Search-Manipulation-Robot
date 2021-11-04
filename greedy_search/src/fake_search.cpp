@@ -101,16 +101,7 @@ class FakeSearch {
                     double visibility, exec_time;
 
                     visibility_client.call(visibility_msg);
-
-                    // while (visibility_client.call(visibility_msg) != true) {
-                    //     ;
-                    // }
-
                     execution_time_client.call(traj_msg);
-
-                    // while (execution_time_client.call(traj_msg) != true) {
-                    //     ;
-                    // }
 
                     if (visibility_client.call(visibility_msg) && execution_time_client.call(traj_msg)) {
                         visibility = visibility_msg.response.visibility;
@@ -128,6 +119,8 @@ class FakeSearch {
                     // block.utility = visibility / exec_time;
                     std::cout << "utility " << block.utility << "\r" << std::endl;
                 }
+
+                
                 
                 ros::spinOnce();
                 loop_rate.sleep();

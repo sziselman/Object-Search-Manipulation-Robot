@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   rviz_visual_tools
+  scene_setup
   std_msgs
   trajectory_msgs
 )
@@ -64,6 +65,7 @@ find_package(catkin REQUIRED COMPONENTS
 # Generate services in the 'srv' folder
 add_service_files(
   FILES
+  RemoveObject.srv
   TrajectoryExecution.srv
 )
 
@@ -78,6 +80,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  scene_setup
   std_msgs
 )
 
@@ -113,7 +116,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES manipulator_control
- CATKIN_DEPENDS geometry_msgs message_runtime roscpp std_msgs
+ CATKIN_DEPENDS geometry_msgs message_runtime roscpp scene_setup std_msgs
 #  DEPENDS system_lib
 )
 
