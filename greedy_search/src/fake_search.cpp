@@ -4,6 +4,7 @@
 #include "manipulator_control/TrajectoryExecution.h"
 #include "scene_setup/Visibility.h"
 #include "scene_setup/Block.h"
+#include "scene_setup/BlockArray.h"
 
 #include <geometry_msgs/Pose.h>
 #include <visualization_msgs/Marker.h>
@@ -13,10 +14,11 @@
 
 class FakeSearch {
     private:
+        // ros objects
         ros::NodeHandle n;
-        // ros::Publisher arrangement_pub;
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
+        ros::Publisher object_pub;
 
         // parameters
         std::vector<double> object_dimensions;
@@ -33,11 +35,12 @@ class FakeSearch {
     public:
         FakeSearch() {
             load_parameters();
-            initialize_blocks();
 
-            // // arrangement_pub = n.advertise<std::vector<greedy_search::Block>>("arrangement", 10);
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
+            object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
+        
+            initialize_blocks();
         }
 
         /// \brief load_parameters 
@@ -49,7 +52,6 @@ class FakeSearch {
             n.getParam("y_locs", y_locs);
             n.getParam("z_locs", z_locs);
 
-
             return;
         }
 
@@ -57,6 +59,7 @@ class FakeSearch {
         /// takes in the (x,y,z) locations and sets them as blocks
         void initialize_blocks(void) {
 
+            std::cout << "INITIALIZING BLOCKS ++++++++++++++++++++++++++++++++++++\r" << std::endl;
             for (int i = 0; i < x_locs.size(); i++) {
                 scene_setup::Block block;
 
@@ -70,8 +73,17 @@ class FakeSearch {
                 block.dimensions = object_dimensions;
                 block.id = i;
 
+                // std::cout << "block " << block.id << "\r" << std::endl;
                 blocks.push_back(block);
             }
+
+            scene_setup::BlockArray block_array;
+            block_array.blocks = blocks;
+            
+            for (auto x : block_array.blocks) {
+                std::cout << "block " << x.id << "\r" << std::endl;
+            }
+            object_pub.publish(block_array);
 
             return;
         }
@@ -119,8 +131,6 @@ class FakeSearch {
                     // block.utility = visibility / exec_time;
                     std::cout << "utility " << block.utility << "\r" << std::endl;
                 }
-
-                
                 
                 ros::spinOnce();
                 loop_rate.sleep();

@@ -48,6 +48,8 @@ namespace scene
             /// \param pos position of the object
             /// \returns the volume of the space that is blocked by the object
             double getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose);
+
+            std::vector<double> getRearPlaneDimensions(void);
     };
 }
 #endif

@@ -125,4 +125,8 @@ namespace scene
         
         return ((h / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
     }
+
+    std::vector<double> Scene::getRearPlaneDimensions(void) {
+        return rear_plane_dims;
+    }
 }

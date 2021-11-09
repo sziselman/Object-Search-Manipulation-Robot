@@ -9,6 +9,8 @@
 #include <moveit_msgs/AttachedCollisionObject.h>
 #include <moveit_msgs/CollisionObject.h>
 
+#include <shape_msgs/SolidPrimitive.h>
+
 #include <moveit_visual_tools/moveit_visual_tools.h>
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -22,7 +24,10 @@
 #include <std_msgs/Float64.h>
 
 #include "manipulator_control/TrajectoryExecution.h"
+#include "manipulator_control/RemoveObject.h"
 
+#include "scene_setup/Block.h"
+#include "scene_setup/BlockArray.h"
 
 static constexpr double PI=3.14159265358979323846;
 
@@ -33,7 +38,7 @@ class ManipulatorArm {
         ros::Publisher pincer_pub;
         ros::ServiceServer execution_time_service;
         ros::ServiceServer remove_object_service;
-        ros::Publisher pincer_pub;
+        ros::Subscriber object_sub;
 
         // move it variables
         moveit::planning_interface::MoveGroupInterface arm_move_group;
@@ -49,8 +54,8 @@ class ManipulatorArm {
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
             execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
-            remove_object_service = n.advertiseService("/remove_object", &Manipulator::removeObject, this);
-            pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
+            remove_object_service = n.advertiseService("/remove_object", &ManipulatorArm::removeObject, this);
+            object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
         }
 
         bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
@@ -59,7 +64,7 @@ class ManipulatorArm {
             geometry_msgs::Pose grab_pose;
             grab_pose.position.x = req.pose.position.x;
             grab_pose.position.y = req.pose.position.y;
-            grab_pose.position.z = req.pose.position.z + 0.05;
+            grab_pose.position.z = req.pose.position.z + 0.1;
             
             tf2::Quaternion grab_quat;
             grab_quat.setRPY(PI/2, PI/2, 0.0);
@@ -102,7 +107,7 @@ class ManipulatorArm {
             // move the arm to the pre grasp pose
             geometry_msgs::Pose pose;
             tf2::Quaternion quat;
-            quat.setRPY(PI/2, PI/2 0);
+            quat.setRPY(PI/2, PI/2, 0.0);
             pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.x;
             pose.position.y = req.block.pose.position.y;
@@ -121,11 +126,52 @@ class ManipulatorArm {
             // close the grippers, attach brick to the move group
             std_msgs::Float64 angle;
             angle.data = 0.80;
-            pincer_pub.publish(close_angle);
+            pincer_pub.publish(angle);
             // arm_move_group.attachObject("")
 
 
         }
+        
+        void object_callback(const scene_setup::BlockArray msg) {
+            
+            std::vector<moveit_msgs::CollisionObject> collision_objects;
+
+            // loop through all blocks received and add them as collision objects to the MoveIt planner
+            for (auto block : msg.blocks) {
+                std::cout << "object array received!!++++++++++++++++++++++++++++++++++++++++++ \r" << std::endl;
+
+
+                moveit_msgs::CollisionObject object;
+                object.id = "block" + std::to_string(block.id);
+                std::cout << object.id << "\r" << std::endl;
+                object.header.frame_id = "base_link";
+                
+                // define a box to add to the world
+                shape_msgs::SolidPrimitive primitive;
+                primitive.type = primitive.BOX;
+                primitive.dimensions.resize(3);
+                primitive.dimensions[primitive.BOX_X] = block.dimensions[0];
+                primitive.dimensions[primitive.BOX_Y] = block.dimensions[1];
+                primitive.dimensions[primitive.BOX_Z] = block.dimensions[2];
+
+                // define a pose for the box
+                geometry_msgs::Pose box_pose;
+                box_pose.orientation.x = 1.0;
+                box_pose.position.x = block.pose.position.x;
+                box_pose.position.y = block.pose.position.y;
+                box_pose.position.z = block.pose.position.z;
+
+                object.primitives.push_back(primitive);
+                object.primitive_poses.push_back(box_pose);
+                object.operation = object.ADD;
+
+                collision_objects.push_back(object);
+            }
+
+            planning_scene_interface.addCollisionObjects(collision_objects);
+            return;
+        }
+
         void main_loop(void) {
             ros::Rate loop_rate(100);
             ros::AsyncSpinner spinner(1);

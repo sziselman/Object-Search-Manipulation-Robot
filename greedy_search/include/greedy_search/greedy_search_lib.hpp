@@ -8,9 +8,27 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 namespace greedy_search
 {
+    // class Block {
+    //     private:
+    //         scene_setup::Block block;
+            
+    //     public:
+    //         /// \brief constructor
+    //         Block();
+
+    //         /// \brief constructor
+    //         /// \param block_ : block object
+    //         Block(scene_setup::Block &block_);
+
+    //         /// \brief operator overload for less than
+    //         bool operator < (const Block &right);
+
+    // };
+
     /// \brief class for Greedy Search
     /// the greedy algorithm ranks the accessible objects in a scene based on utility and removes the highest utility object
     class GreedySearch
@@ -18,6 +36,7 @@ namespace greedy_search
         private:
             std::vector<scene_setup::Block> objects;    // list of poses (position and orientation) for the visible objects within a scene
             double num;                                 // number of objects visible
+            // std::set<Block> arrangement;
         
         public:
             /// \brief constructor for GreedySearch object

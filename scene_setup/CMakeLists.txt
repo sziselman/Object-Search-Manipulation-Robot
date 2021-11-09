@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   message_generation
   roscpp
   std_msgs
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,6 +52,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   FILES
   Block.msg
+  BlockArray.msg
 )
 
 # Generate services in the 'srv' folder

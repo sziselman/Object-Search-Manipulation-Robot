@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   rviz_visual_tools
   scene_setup
+  shape_msgs
   std_msgs
   trajectory_msgs
 )
