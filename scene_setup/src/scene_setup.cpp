@@ -36,8 +36,6 @@ class ObjectScene {
 
             visibility_service = n.advertiseService("get_visibility", &ObjectScene::visibility, this);
             marker_pub = n.advertise<visualization_msgs::MarkerArray>("scene_markers", 10, true);
-
-            load_scene_markers();
         }
 
         /// \brief load_parameters
@@ -79,6 +77,7 @@ class ObjectScene {
 
             marker.header.frame_id = "base_link";
             marker.header.stamp = ros::Time::now();
+            marker.id = 1;
             marker.ns = "scene";
             marker.type = 4;
             marker.action = visualization_msgs::Marker::ADD;
@@ -92,29 +91,42 @@ class ObjectScene {
 
             array.markers.push_back(marker);
 
-            // // rear plane
-            // std::vector<double> rear_plane_dims = search_scene.getRearPlaneDimensions();
-            // std::vector<geometry_msgs::Point> rear_plane;
-            // point.x = -rear_plane_dims[0]/2;
-            // point.y = rear_plane_distance;
-            // point.z = 0.0;
+            // rear plane
+            std::vector<double> rear_plane_dims = search_scene.getRearPlaneDimensions();
+            std::vector<geometry_msgs::Point> rear_plane;
+            point.x = -rear_plane_dims[0]/2;
+            point.y = rear_plane_distance;
+            point.z = 0.0;
 
-            // rear_plane.push_back(point);
+            rear_plane.push_back(point);
 
-            // point.x += rear_plane_dims[0];
-            // rear_plane.push_back(point);
+            point.x += rear_plane_dims[0];
+            rear_plane.push_back(point);
 
-            // point.z += rear_plane_dims[1];
-            // rear_plane.push_back(point);
+            point.z += rear_plane_dims[1];
+            rear_plane.push_back(point);
 
-            // point.x -= rear_plane_dims[0];
-            // rear_plane.push_back(point);
+            point.x -= rear_plane_dims[0];
+            rear_plane.push_back(point);
 
-            // point.z -= rear_plane_dims[1];
-            // rear_plane.push_back(point);
+            point.z -= rear_plane_dims[1];
+            rear_plane.push_back(point);
 
-            // marker.points = rear_plane;
-            // array.markers.push_back(marker);
+            marker.points = rear_plane;
+            marker.id ++;
+            array.markers.push_back(marker);
+
+            // rays outward
+            std::vector<geometry_msgs::Point> edge;
+            edge.resize(2);
+
+            for (int i = 0; i < front_plane.size(); i++) {
+                edge[0] = front_plane[i];
+                edge[1] = rear_plane[i];
+                marker.id++;
+                marker.points = edge;
+                array.markers.push_back(marker);
+            }
 
             marker_pub.publish(array);
             return;
@@ -130,6 +142,7 @@ class ObjectScene {
         void main_loop(void) {
 
             ros::Rate loop_rate(frequency);
+            load_scene_markers();
 
             while (ros::ok()) {
                 
