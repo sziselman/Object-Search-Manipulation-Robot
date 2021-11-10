@@ -15,7 +15,8 @@ In order to test the `greedy_search` node, the `fake_search` node was created to
 ```
 roslaunch greedy_search fake_search.launch
 ```
-
+Once launched, the `rviz` window should show the blocks, the scene geometry, and the Adroit manipulator arm. See below:
+![fake_blocks](img/fake_blocks.gif)
 ## Usage
 
 ## Configuration

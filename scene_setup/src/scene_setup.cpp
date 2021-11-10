@@ -82,7 +82,8 @@ class ObjectScene {
             marker.type = 4;
             marker.action = visualization_msgs::Marker::ADD;
             marker.points = front_plane;
-            marker.scale.x = 0.01;
+            marker.scale.x = 0.005;
+            marker.scale.y = 0.005;
             marker.color.a = 1.0;
             marker.color.r = 250. / 255.;
             marker.color.g = 192. / 255.;
