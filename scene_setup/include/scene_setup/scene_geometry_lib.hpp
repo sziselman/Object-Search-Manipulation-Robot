@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <geometry_msgs/Pose.h>
+#include "scene_setup/Block.h"
 
 namespace scene
 {
@@ -20,6 +21,14 @@ namespace scene
         CubeFace(geometry_msgs::Point lr, geometry_msgs::Point ll, geometry_msgs::Point ur, geometry_msgs::Point ul);
 
         CubeFace getShadow(double distance);
+    };
+
+    /// \brief struct that stores the corner points of a block
+    struct BlockPoints
+    {
+        std::vector<geometry_msgs::Point> points;
+
+        BlockPoints(scene_setup::Block block);
     };
 
     class Scene
@@ -44,10 +53,9 @@ namespace scene
             Scene(std::vector<double> dims_f, double dist_f, double dist_r);
 
             /// \brief inserts a rectangular object into the scene
-            /// \param dims dimensions of the object
-            /// \param pos position of the object
+            /// \param block : stores the position, dimensions, id and utility
             /// \returns the volume of the space that is blocked by the object
-            double getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose);
+            double getObjectVisibility(scene_setup::Block block);
 
             std::vector<double> getRearPlaneDimensions(void);
     };

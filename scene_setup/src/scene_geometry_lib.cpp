@@ -45,6 +45,60 @@ namespace scene
         return shadow;
     }
 
+    BlockPoints::BlockPoints(scene_setup::Block block) {
+        double x = block.pose.position.x;
+        double y = block.pose.position.y;
+        double z = block.pose.position.z;
+
+        double w = block.dimensions[0];
+        double d = block.dimensions[1];
+        double h = block.dimensions[2];
+
+        geometry_msgs::Point front_up_left, front_up_right, front_lo_left, front_lo_right,
+                             rear_up_left, rear_up_right, rear_lo_left, rear_lo_right;
+
+        front_up_left.x = x - w/2;
+        front_up_left.y = y - d/2;
+        front_up_left.z = z + h/2;
+        points.push_back(front_up_left);
+
+        front_up_right.x = x + w/2;
+        front_up_right.y = y - d/2;
+        front_up_right.z = z + h/2;
+        points.push_back(front_up_right);
+
+        front_lo_left.x = x - w/2;
+        front_lo_left.y = y - d/2;
+        front_lo_left.z = z - h/2;
+        points.push_back(front_lo_left);
+
+        front_lo_right.x = x + w/2;
+        front_lo_right.y = y - d/2;
+        front_lo_right.z = z - h/2;
+        points.push_back(front_lo_right);
+
+        rear_up_left.x = x - w/2;
+        rear_up_left.y = y + d/2;
+        rear_up_left.z = z + h/2;
+        points.push_back(rear_up_left);
+
+        rear_up_right.x = x + w/2;
+        rear_up_right.y = y + d/2;
+        rear_up_right.z = z + h/2;
+        points.push_back(rear_up_right);
+
+        rear_lo_left.x = x - w/2;
+        rear_lo_left.y = y + d/2;
+        rear_lo_left.z = z - h/2;
+        points.push_back(rear_lo_left);
+
+        rear_lo_right.x = x + w/2;
+        rear_lo_right.y = y + d/2;
+        rear_lo_right.z = z - h/2;
+        points.push_back(rear_lo_right);
+
+    }
+
     void Scene::getSceneGeometry(void)
     {
         // calculates the dimensions of the rear plane
@@ -84,38 +138,46 @@ namespace scene
         // cout << "volume of scene is " << volume_scene << " m^2" << endl;
     }
 
-    double Scene::getObjectVisibility(const std::vector<double> dims, geometry_msgs::Pose pose)
+    double Scene::getObjectVisibility(scene_setup::Block block)
     {
         using namespace std;
 
+        double x = block.pose.position.x;
+        double y = block.pose.position.y;
+        double z = block.pose.position.z;
+
+        double w = block.dimensions[0];
+        double d = block.dimensions[1];
+        double h = block.dimensions[2];
+        
         // area of the front face of the object
-        double object_front_area = dims[0] * dims[1];
+        double object_front_area = w * h;
         // std::cout << "area of front plane of object is " << object_front_area << endl;
 
         // volume of the object
-        double object_volume = dims[0] * dims[1] * dims[2];
+        double object_volume = object_front_area * d;
         // std::cout << "volume of the object is " << object_volume << endl;
 
         // distance between the front face of the object and the rear plane of the scene
-        double h = rear_dist - pose.position.y + (dims[1] / 2);
+        double height = rear_dist - y + (d / 2);
         // std::cout << "distance between two planes of frustum is " << h << endl;
 
         CubeFace object_face;
-        object_face.lower_right.x = pose.position.x + (dims[0] / 2);
-        object_face.lower_right.y = pose.position.y - (dims[1] / 2);
-        object_face.lower_right.z = pose.position.z - (dims[2] / 2);
+        object_face.lower_right.x = x + (w / 2);
+        object_face.lower_right.y = y - (d / 2);
+        object_face.lower_right.z = z - (h / 2);
 
-        object_face.lower_left.x = pose.position.x - (dims[0] / 2);
-        object_face.lower_left.y = pose.position.y - (dims[1] / 2);
-        object_face.lower_left.z = pose.position.z - (dims[2] / 2);
+        object_face.lower_left.x = x - (w / 2);
+        object_face.lower_left.y = y - (d / 2);
+        object_face.lower_left.z = z - (h / 2);
 
-        object_face.upper_right.x = pose.position.x + (dims[0] / 2);
-        object_face.upper_right.y = pose.position.y - (dims[1] / 2);
-        object_face.upper_right.z = pose.position.z + (dims[2] / 2);
+        object_face.upper_right.x = x + (w / 2);
+        object_face.upper_right.y = y - (d / 2);
+        object_face.upper_right.z = z + (h / 2);
 
-        object_face.upper_left.x = pose.position.x - (dims[0] / 2);
-        object_face.upper_left.y = pose.position.y - (dims[1] / 2);
-        object_face.upper_left.z = pose.position.z + (dims[2] / 2);
+        object_face.upper_left.x = x - (w / 2);
+        object_face.upper_left.y = y - (d / 2);
+        object_face.upper_left.z = z + (h / 2);
 
         CubeFace shadow_face = object_face.getShadow(rear_dist);
 
@@ -123,7 +185,7 @@ namespace scene
 
         // std::cout << "area of shadow is " << shadow_area << endl;
         
-        return ((h / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
+        return ((height / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
     }
 
     std::vector<double> Scene::getRearPlaneDimensions(void) {

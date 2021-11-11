@@ -4,6 +4,8 @@
 
 #include "scene_setup/scene_geometry_lib.hpp"
 #include "scene_setup/Visibility.h"
+#include "scene_setup/Block.h"
+
 #include <visualization_msgs/MarkerArray.h>
 #include <visualization_msgs/Marker.h>
 #include <geometry_msgs/Point.h>
@@ -136,7 +138,7 @@ class ObjectScene {
         bool visibility(scene_setup::Visibility::Request& req,
                         scene_setup::Visibility::Response& res) {
 
-            res.visibility = search_scene.getObjectVisibility(object_dimensions, req.pose);
+            res.visibility = search_scene.getObjectVisibility(req.block);
             return true;
         }
 

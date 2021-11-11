@@ -81,6 +81,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
+  moveit_msgs
   scene_setup
   std_msgs
 )

@@ -1,2 +1,3 @@
 scene_setup/Block block 
 ---
+moveit_msgs/MoveItErrorCodes success

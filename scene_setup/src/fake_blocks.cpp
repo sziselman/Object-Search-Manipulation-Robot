@@ -3,6 +3,7 @@
 #include <geometry_msgs/Pose.h>
 
 #include "scene_setup/Visibility.h"
+#include "scene_setup/Block.h"
 
 class FakeBlocks {
     private:
@@ -36,9 +37,12 @@ class FakeBlocks {
             pose.position.y = 2.5;
             pose.position.z = object_dimensions[2]/2;
 
+            scene_setup::Block block;
+            block.dimensions = object_dimensions;
+            block.pose = pose;
+
             scene_setup::Visibility visibility_msg;
-            visibility_msg.request.pose = pose;
-            visibility_msg.request.dimensions = object_dimensions;
+            visibility_msg.request.block = block;
 
             while (ros::ok()) {
                 visibility_client.call(visibility_msg);

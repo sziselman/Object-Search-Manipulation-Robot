@@ -1,4 +1,3 @@
-geometry_msgs/Pose pose 
-float64[] dimensions
+scene_setup/Block block
 ---
 float64 visibility

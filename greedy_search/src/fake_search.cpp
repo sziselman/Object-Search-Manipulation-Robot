@@ -103,8 +103,8 @@ class FakeSearch {
                     std::cout << block.id << "\r" << std::endl;
 
                     scene_setup::Visibility visibility_msg;
-                    visibility_msg.request.pose = block.pose;
-                    visibility_msg.request.dimensions = object_dimensions;
+                    
+                    visibility_msg.request.block = block;
 
                     manipulator_control::TrajectoryExecution traj_msg;
                     traj_msg.request.pose = block.pose;
@@ -115,6 +115,7 @@ class FakeSearch {
                     visibility_client.call(visibility_msg);
                     execution_time_client.call(traj_msg);
 
+                    // get the utility
                     if (visibility_client.call(visibility_msg) && execution_time_client.call(traj_msg)) {
                         visibility = visibility_msg.response.visibility;
                         std::cout << "visibility " << visibility << "\r" << std::endl;
@@ -131,7 +132,10 @@ class FakeSearch {
                     // block.utility = visibility / exec_time;
                     std::cout << "utility " << block.utility << "\r" << std::endl;
                 }
-                
+
+                // // input the blocks into the greedy search object
+                // GreedySearch greedy(blocks);
+
                 ros::spinOnce();
                 loop_rate.sleep();
             }

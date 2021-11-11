@@ -1,0 +1,3 @@
+<launch>
+    <node name="test_greedy" pkg="greedy_search" type="test_greedy" output="screen"/>
+</launch>

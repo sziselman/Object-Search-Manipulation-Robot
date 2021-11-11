@@ -114,22 +114,26 @@ class ManipulatorArm {
             pose.position.z = req.block.pose.position.z + 0.075;
 
             arm_move_group.setPoseTarget(pose);
-            arm_move_group.move();
+            moveit::planning_interface::MoveGroupInterface::Plan plan;
+            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                arm_move_group.move();
+            }
 
-            // move the arm to the grasp pose
-            pose.position.z = req.block.pose.position.z - 0.02;
+            // // move the arm to the grasp pose
+            // pose.position.z = req.block.pose.position.z - 0.02;
 
-            arm_move_group.setPoseTarget(pose);
-            arm_move_group.move();
+            // arm_move_group.setPoseTarget(pose);
+            // arm_move_group.move();
+            // return true;
+
+            // // close the grippers, attach brick to the move group
+            // std_msgs::Float64 angle;
+            // angle.data = 0.80;
+            // pincer_pub.publish(angle);
+            // // arm_move_group.attachObject("")
+
+
             return true;
-
-            // close the grippers, attach brick to the move group
-            std_msgs::Float64 angle;
-            angle.data = 0.80;
-            pincer_pub.publish(angle);
-            // arm_move_group.attachObject("")
-
-
         }
         
         void object_callback(const scene_setup::BlockArray msg) {
