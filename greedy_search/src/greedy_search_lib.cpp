@@ -18,7 +18,7 @@ namespace greedy_search
 
     std::vector<scene_setup::Block> GreedySearch::getArrangement(void) {
         std::set<BlockStruct*> ordered_blocks;
-        
+
         std::cout << "getting arrangement \r" << std::endl;
 
         for (auto object : objects) {

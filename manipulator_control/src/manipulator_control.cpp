@@ -119,20 +119,38 @@ class ManipulatorArm {
                 arm_move_group.move();
             }
 
-            // // move the arm to the grasp pose
-            // pose.position.z = req.block.pose.position.z - 0.02;
+            std_msgs::Float64 pincer_angle;
+            pincer_angle.data = 0.90;
+            pincer_pub.publish(pincer_angle);
 
-            // arm_move_group.setPoseTarget(pose);
-            // arm_move_group.move();
-            // return true;
+            // move the arm to the grasp pose
+            pose.position.z = req.block.pose.position.z - 0.02;
+            arm_move_group.setPoseTarget(pose);
+            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                arm_move_group.move();
+            }
 
-            // // close the grippers, attach brick to the move group
-            // std_msgs::Float64 angle;
-            // angle.data = 0.80;
-            // pincer_pub.publish(angle);
-            // // arm_move_group.attachObject("")
+            pincer_angle.data = 0.0;
+            pincer_pub.publish(pincer_angle);
 
+            // TODO: attach collision object to arm!!!
 
+            pose.position.x = req.block.pose.position.y;
+            pose.position.y = req.block.pose.position.x;
+            pose.position.z = req.block.pose.position.z + 0.075;
+
+            arm_move_group.setPoseTarget(pose);
+            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                arm_move_group.move();
+            }
+
+            pose.position.z = req.block.pose.position.z - 0.02;
+            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                arm_move_group.move();
+            }
+
+            pincer_angle.data = 0.90;
+            pincer_pub.publish(pincer_angle);
             return true;
         }
         
