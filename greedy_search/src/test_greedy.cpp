@@ -17,7 +17,7 @@ class TestGreedy {
             using namespace greedy_search;
             ros::Rate loop_rate(100);
 
-            scene_setup::Block block1, block2, block3, block4;
+            scene_setup::Block block1, block2, block3, block4, block5, block6;
             block1.id = 1;
             block1.utility = 10;
 
@@ -30,17 +30,25 @@ class TestGreedy {
             block4.id = 4;
             block4.utility = 40;
 
-            std::vector<scene_setup::Block> blocks{block3, block2, block1, block4};
+
+            block5.id = 5;
+            block5.utility = 400;
+
+            block6.id = 6;
+            block6.utility = -40;
+
+
+            std::vector<scene_setup::Block> blocks{block3, block2, block1, block4, block6, block5};
             GreedySearch greedy(blocks);
 
-            while (ros::ok()) {
+            // while (ros::ok()) {
 
                 std::vector<scene_setup::Block> arrangement;
                 arrangement = greedy.getArrangement();
 
                 ros::spinOnce();
                 loop_rate.sleep();
-            }
+            // }
             return;
         }
 };

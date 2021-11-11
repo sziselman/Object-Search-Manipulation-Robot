@@ -145,6 +145,7 @@ class ManipulatorArm {
             }
 
             pose.position.z = req.block.pose.position.z - 0.02;
+            arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
             }

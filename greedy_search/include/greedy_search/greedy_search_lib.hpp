@@ -12,12 +12,18 @@ namespace greedy_search
 {
     struct BlockStruct {
         scene_setup::Block block;
+
         double utility;
 
+        /// \brief constructor for BlockStruct object
         BlockStruct();
 
+        /// \brief constructor for BlockStruct object
+        /// \param b : a scene_setup/Block msg
         BlockStruct(scene_setup::Block &b);
 
+        /// \brief operator overload on < (less than)
+        /// returns true if the lhs utility is less than the rhs utility
         bool operator < (const BlockStruct &right);
         
     };
