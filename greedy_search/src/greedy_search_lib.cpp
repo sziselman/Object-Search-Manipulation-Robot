@@ -2,30 +2,43 @@
 
 namespace greedy_search
 {
+    BlockStruct::BlockStruct() {}
+    
+    BlockStruct::BlockStruct(scene_setup::Block &b) : block(b), utility(b.utility) {}
+
+    bool BlockStruct::operator < (const BlockStruct &right) {
+        return utility < right.utility;
+    }
+
     GreedySearch::GreedySearch() {}
 
-    GreedySearch::GreedySearch(std::vector<scene_setup::Block> & blocks) : objects(blocks) {}
+    GreedySearch::GreedySearch(std::vector<scene_setup::Block> & blocks) : objects(blocks) {
+        std::cout << "initializing greedy search object\r" << std::endl;
+    }
 
     std::vector<scene_setup::Block> GreedySearch::getArrangement(void) {
-        std::vector<scene_setup::Block> copy;
-        copy = objects;
-
-        while (copy.size() > 0) {
-            double max_utility = -1e5;
-            scene_setup::Block max_block;
-            // loop through each block and find the one with the largest utility
-            for (auto block : copy) {
-                if (block.utility > max_utility) {
-                    max_block = block;
-                }
-            }
-
-            // once the block with max utility is found, its added to the arrangement
-            arrangement.push_back(max_block);
-            // remove the block with the max utility
-            remove(copy.begin(), copy.end(), max_block);
-        }
+        std::set<BlockStruct*> ordered_blocks;
         
+        std::cout << "getting arrangement \r" << std::endl;
+
+        for (auto object : objects) {
+            std::cout << "object " << object.id << std::endl;
+            // create BlockStruct 
+            BlockStruct* b_struct = new BlockStruct(object);
+
+            // insert the BlockStruct to the ordered set
+            ordered_blocks.insert(b_struct);
+        }
+
+        std::cout << "arrangement found\r" << std::endl;
+
+        // loop through the ordered set and blocks in vector
+        for (auto it : ordered_blocks) {
+            std::cout << "object id " << it->block.id << std::endl;
+            std::cout << "object utility " << it->block.utility << std::endl;
+            arrangement.push_back(it->block);
+        }
+
         return arrangement;
     }
 

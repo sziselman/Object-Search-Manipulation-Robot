@@ -10,13 +10,25 @@
 
 namespace greedy_search
 {
+    struct BlockStruct {
+        scene_setup::Block block;
+        double utility;
+
+        BlockStruct();
+
+        BlockStruct(scene_setup::Block &b);
+
+        bool operator < (const BlockStruct &right);
+        
+    };
+
     /// \brief class for Greedy Search
     /// the greedy algorithm ranks the accessible objects in a scene based on utility and removes the highest utility object
     class GreedySearch
     {
         private:
             std::vector<scene_setup::Block> objects;        // list of blocks
-            std::vector<scene_setup::Block> arrangement;    // the arrangement of objects
+            std::vector<scene_setup::Block> arrangement;
         
         public:
             /// \brief constructor for GreedySearch object
