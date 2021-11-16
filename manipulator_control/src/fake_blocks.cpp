@@ -62,17 +62,17 @@ class FakeManipulatorBlocks {
 
             while(ros::ok()) {
 
-                trajectory_client.call(traj_msg);
+                // trajectory_client.call(traj_msg);
 
-                if (trajectory_client.call(traj_msg)) {
+                // if (trajectory_client.call(traj_msg)) {
 
-                    if (traj_msg.response.success == true) {
-                        std::cout << "successful trajectory execution time is " << traj_msg.response.duration << "\r" << std::endl;
-                    }
-                    else {
-                        std::cout << "unsuccessful trajectory execution\r" << std::endl;
-                    }
-                }
+                //     if (traj_msg.response.success == true) {
+                //         std::cout << "successful trajectory execution time is " << traj_msg.response.duration << "\r" << std::endl;
+                //     }
+                //     else {
+                //         std::cout << "unsuccessful trajectory execution\r" << std::endl;
+                //     }
+                // }
 
                 ros::spinOnce();
                 loop_rate.sleep();
