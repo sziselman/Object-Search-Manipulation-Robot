@@ -1,7 +1,10 @@
 #include <ros/ros.h>
 
 #include "greedy_search/greedy_search_lib.hpp"
+#include "greedy_search/Utility.h"
+
 #include "manipulator_control/TrajectoryExecution.h"
+
 #include "scene_setup/Visibility.h"
 #include "scene_setup/Block.h"
 #include "scene_setup/BlockArray.h"
@@ -18,6 +21,7 @@ class FakeSearch {
         ros::NodeHandle n;
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
+        ros::ServiceServer utility_service;
         ros::Publisher object_pub;
 
         // parameters
@@ -38,9 +42,10 @@ class FakeSearch {
 
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
+            utility_service = n.advertiseService("get_utility", &FakeSearch::utility, this);
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
         
-            initialize_blocks();
+            load_blocks();
         }
 
         /// \brief load_parameters 
@@ -55,34 +60,63 @@ class FakeSearch {
             return;
         }
 
-        /// \brief initialize_blocks
-        /// takes in the (x,y,z) locations and sets them as blocks
-        void initialize_blocks(void) {
+        bool utility(greedy_search::Utility::Request &req,
+                     greedy_search::Utility::Response &res) {
+            
+            // create service messages
+            scene_setup::Visibility vis_msg;
+            manipulator_control::TrajectoryExecution traj_msg;
 
-            std::cout << "INITIALIZING BLOCKS ++++++++++++++++++++++++++++++++++++\r" << std::endl;
+            // populate those messages
+            vis_msg.request.block = req.block;
+            traj_msg.request.block = req.block;
+
+            visibility_client.call(vis_msg);
+            execution_time_client.call(traj_msg);
+
+            if (visibility_client.call(vis_msg) && execution_time_client.call(traj_msg)) {
+                double visibility = vis_msg.response.visibility;
+                std::cout << "visibility of block " << req.block.id << " is " << visibility << "\r" << std::endl;
+
+                // if planned removal of object is successful, get the trajectory execution time
+                if (traj_msg.response.success) {
+                    double exec_time = traj_msg.response.duration;
+                    std::cout << "execution time of block " << req.block.id << " is " << exec_time << "\r" << std::endl;
+                    res.success = true;
+                    res.utility = visibility / exec_time;
+                }
+                // if planned removal of object is unsucessful, set the utility very low
+                else {
+                    res.success = false;
+                    res.utility = -1e4;
+                }
+            }
+
+            return true;
+        }
+
+        /// \brief load_blocks
+        /// takes in the (x,y,z) locations and sets them as blocks
+        void load_blocks(void) {
+
             for (int i = 0; i < x_locs.size(); i++) {
                 scene_setup::Block block;
 
-                geometry_msgs::Pose block_pose;
-                block_pose.position.x = x_locs[i];
-                block_pose.position.y = y_locs[i];
-                block_pose.position.z = z_locs[i];
-                block_pose.orientation.w = 1.0;
-
-                block.pose = block_pose;
+                block.pose.position.x = x_locs[i];
+                block.pose.position.y = y_locs[i];
+                block.pose.position.z = z_locs[i];
+                block.pose.orientation.w = 1.0;
                 block.dimensions = object_dimensions;
                 block.id = i;
+                
+                std::cout << "initializing block " << block.id << "\r" << std::endl;
 
-                // std::cout << "block " << block.id << "\r" << std::endl;
                 blocks.push_back(block);
             }
 
             scene_setup::BlockArray block_array;
             block_array.blocks = blocks;
             
-            for (auto x : block_array.blocks) {
-                std::cout << "block " << x.id << "\r" << std::endl;
-            }
             object_pub.publish(block_array);
 
             return;
@@ -92,42 +126,14 @@ class FakeSearch {
             using namespace greedy_search;
 
             ros::Rate loop_rate(frequency);
-            // GreedySearch greedy = GreedySearch(blocks);
 
             while (ros::ok()) {
-
-                std::cout << "loop\r" << std::endl;
 
                 // calculate the utility of each block
                 for (auto block : blocks) {
                     std::cout << block.id << "\r" << std::endl;
 
-                    scene_setup::Visibility visibility_msg;
                     
-                    visibility_msg.request.block = block;
-
-                    manipulator_control::TrajectoryExecution traj_msg;
-                    traj_msg.request.block = block;
-                    
-                    double visibility, exec_time;
-
-                    visibility_client.call(visibility_msg);
-                    execution_time_client.call(traj_msg);
-
-                    // get the utility
-                    if (visibility_client.call(visibility_msg) && execution_time_client.call(traj_msg)) {
-                        visibility = visibility_msg.response.visibility;
-                        std::cout << "visibility " << visibility << "\r" << std::endl;
-
-                        if (traj_msg.response.success == true) {
-                            exec_time = traj_msg.response.duration;
-                            std::cout << "execution time " << exec_time << "\r" << std::endl;
-                            block.utility = visibility/exec_time;
-                        }
-                        else {
-                            block.utility = 1e5;
-                        }
-                    }
                     // block.utility = visibility / exec_time;
                     std::cout << "utility " << block.utility << "\r" << std::endl;
                 }

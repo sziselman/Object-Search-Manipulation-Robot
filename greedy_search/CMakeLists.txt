@@ -46,6 +46,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
+add_service_files(
+    FILES 
+    Utility.srv
+)
+
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
@@ -53,12 +58,12 @@ find_package(catkin REQUIRED COMPONENTS
 #   Message2.msg
 # )
 
-# # Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   scene_setup
-#   std_msgs
-# )
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  scene_setup
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -91,7 +96,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES greedy_search_lib
+ LIBRARIES ${PROJECT_NAME}_lib
  CATKIN_DEPENDS message_runtime roscpp scene_setup std_msgs
 #  DEPENDS system_lib
 )
@@ -108,8 +113,8 @@ include
 )
 
 ## Declare a C++ library
-add_library(greedy_search_lib
-  src/greedy_search_lib.cpp
+add_library(${PROJECT_NAME}_lib
+  src/${PROJECT_NAME}_lib.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -139,9 +144,9 @@ add_dependencies(fake_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORT
 add_dependencies(test_greedy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
-target_link_libraries(greedy_search_lib ${catkin_LIBRARIES})
-target_link_libraries(fake_search ${catkin_LIBRARIES} greedy_search_lib)
-target_link_libraries(test_greedy ${catkin_LIBRARIES} greedy_search_lib)
+target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
+target_link_libraries(fake_search ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
+target_link_libraries(test_greedy ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
 
 #############
 ## Install ##
@@ -158,7 +163,7 @@ install(TARGETS fake_search test_greedy
 
 # Mark libraries for installation
 # See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-install(TARGETS greedy_search_lib
+install(TARGETS ${PROJECT_NAME}_lib
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

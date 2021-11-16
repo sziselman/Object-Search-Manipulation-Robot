@@ -54,7 +54,7 @@ class ManipulatorArm {
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
             execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
-            remove_object_service = n.advertiseService("/remove_object", &ManipulatorArm::removeObject, this);
+            remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
             object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
         }
 
