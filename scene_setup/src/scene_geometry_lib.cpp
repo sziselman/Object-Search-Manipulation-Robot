@@ -2,103 +2,6 @@
 
 namespace scene
 {
-    CubeFace::CubeFace()
-    {
-        geometry_msgs::Point point;
-        point.x = 0;
-        point.y = 0;
-        point.z = 0;
-
-        lower_right = point;
-        lower_left = point;
-        upper_right = point;
-        upper_left = point;
-    }
-
-    CubeFace::CubeFace(geometry_msgs::Point lr, geometry_msgs::Point ll, geometry_msgs::Point ur, geometry_msgs::Point ul)
-    {
-        lower_right = lr;
-        lower_left = ll;
-        upper_right = ur;
-        upper_left = ul;
-    }
-
-    CubeFace CubeFace::getShadow(double distance)
-    {
-        CubeFace shadow;
-        shadow.lower_right.x = (lower_right.x / lower_right.y) * distance;
-        shadow.lower_right.y = distance;
-        shadow.lower_right.z = (lower_right.z / lower_right.y) * distance;
-
-        shadow.upper_right.x = (upper_right.x / upper_right.y) * distance;
-        shadow.upper_right.y = distance;
-        shadow.upper_right.z = (upper_right.z / upper_right.y) * distance;
-
-        shadow.lower_left.x = (lower_left.x / lower_left.y) * distance;
-        shadow.lower_left.y = distance;
-        shadow.lower_left.z = (lower_left.z / lower_left.y) * distance;
-
-        shadow.upper_left.x = (upper_left.x / upper_left.y) * distance;
-        shadow.upper_left.y = distance;
-        shadow.upper_left.z = (upper_left.z / upper_left.y) * distance;
-
-        return shadow;
-    }
-
-    BlockPoints::BlockPoints(scene_setup::Block block) {
-        double x = block.pose.position.x;
-        double y = block.pose.position.y;
-        double z = block.pose.position.z;
-
-        double w = block.dimensions[0];
-        double d = block.dimensions[1];
-        double h = block.dimensions[2];
-
-        geometry_msgs::Point front_up_left, front_up_right, front_lo_left, front_lo_right,
-                             rear_up_left, rear_up_right, rear_lo_left, rear_lo_right;
-
-        front_up_left.x = x - w/2;
-        front_up_left.y = y - d/2;
-        front_up_left.z = z + h/2;
-        points.push_back(front_up_left);
-
-        front_up_right.x = x + w/2;
-        front_up_right.y = y - d/2;
-        front_up_right.z = z + h/2;
-        points.push_back(front_up_right);
-
-        front_lo_left.x = x - w/2;
-        front_lo_left.y = y - d/2;
-        front_lo_left.z = z - h/2;
-        points.push_back(front_lo_left);
-
-        front_lo_right.x = x + w/2;
-        front_lo_right.y = y - d/2;
-        front_lo_right.z = z - h/2;
-        points.push_back(front_lo_right);
-
-        rear_up_left.x = x - w/2;
-        rear_up_left.y = y + d/2;
-        rear_up_left.z = z + h/2;
-        points.push_back(rear_up_left);
-
-        rear_up_right.x = x + w/2;
-        rear_up_right.y = y + d/2;
-        rear_up_right.z = z + h/2;
-        points.push_back(rear_up_right);
-
-        rear_lo_left.x = x - w/2;
-        rear_lo_left.y = y + d/2;
-        rear_lo_left.z = z - h/2;
-        points.push_back(rear_lo_left);
-
-        rear_lo_right.x = x + w/2;
-        rear_lo_right.y = y + d/2;
-        rear_lo_right.z = z - h/2;
-        points.push_back(rear_lo_right);
-
-    }
-
     void Scene::getSceneGeometry(void)
     {
         // calculates the dimensions of the rear plane
@@ -113,34 +16,121 @@ namespace scene
         volume_scene = (h/3) * (area_f + area_r + sqrt(area_f * area_r));
     }
 
-    Scene::Scene()
-    {
-        front_plane_dims.resize(2);
-        front_plane_dims[0] = 1.0;
-        front_plane_dims[1] = 1.0;
-        front_dist = 1.0;
-        rear_dist = 2.0;
+    ObjectFacePoints::ObjectFacePoints() {}
 
-        getSceneGeometry();
+    ObjectFacePoints::ObjectFacePoints(scene_setup::Block block) {
+        double x = block.pose.position.x;
+        double y = block.pose.position.y;
+        double z = block.pose.position.z;
+
+        double w = block.dimensions[0];
+        double d = block.dimensions[1];
+        double h = block.dimensions[2];
+
+        /*************************
+         * Front face points
+         * **********************/
+        geometry_msgs::Point lower_left, lower_right, upper_right, upper_left;
+
+        lower_left.x = x - (w/2);
+        lower_left.y = y - (d/2);
+        lower_left.z = z - (h/2);
+
+        // std::cout << "lower left " << lower_left.x << ", " << lower_left.y << ", " << lower_left.z << "\r" << std::endl;
+
+        front_face_points.push_back(lower_left);
+
+        lower_right.x = x + (w/2);
+        lower_right.y = y - (d/2);
+        lower_right.z = z - (h/2);
+
+        // std::cout << "lower right " << lower_right.x << ", " << lower_right.y << ", " << lower_right.z << "\r" << std::endl;
+
+        front_face_points.push_back(lower_right);
+
+        upper_right.x = x + (w/2);
+        upper_right.y = y - (d/2);
+        upper_right.z = z + (h/2);
+
+        // std::cout << "upper_right " << upper_right.x << ", " << upper_right.y << ", " << upper_right.z << "\r" << std::endl;
+
+        front_face_points.push_back(upper_right);
+
+        upper_left.x = x - (w/2);
+        upper_left.y = y - (d/2);
+        upper_left.z = z + (h/2);
+
+        // std::cout << "upper_left " << upper_left.x << ", " << upper_left.y << ", " << upper_left.z << "\r" << std::endl;
+
+        front_face_points.push_back(upper_left);
+
+        /*************************
+         * Foot print points
+         * **********************/
+        geometry_msgs::Point back_left, back_right, front_right, front_left;
+
+        back_left.x = x - (w/2);
+        back_left.y = y + (d/2);
+
+        foot_print_points.push_back(back_left);
+
+        back_right.x = x + (w/2);
+        back_right.y = y + (d/2);
+
+        foot_print_points.push_back(back_right);
+
+        front_right.x = x + (w/2);
+        front_right.y = y - (d/2);
+
+        foot_print_points.push_back(front_right);
+
+        front_left.x = x - (w/2);
+        front_left.y = y - (d/2);
+
+        foot_print_points.push_back(front_left);
     }
 
-    Scene::Scene(std::vector<double> dims_f, double dist_f, double dist_r)
-    {
-        using namespace std;
+    double ObjectFacePoints::getShadowArea(double y_shadow) {
+        // loop through the points and find the x and z values of the shadow
+        std::vector<double> x_vals;
+        std::vector<double> z_vals;
 
-        front_plane_dims = dims_f;
-        front_dist = dist_f;
-        rear_dist = dist_r;
+        for (auto p : foot_print_points) {
+            double x = (p.x / p.y) * y_shadow;
+            x_vals.push_back(x);
+        }
 
+        for (auto p : front_face_points) {
+            double z = (p.z / p.y) * y_shadow;
+            z_vals.push_back(z);
+        }
+
+        // sort the x and z values
+        std::sort(x_vals.begin(), x_vals.end());
+        std::sort(z_vals.begin(), z_vals.end());
+
+        // get the width of shadow using minimum and maximum values
+        double w_shadow = x_vals.back() - x_vals[0];
+        // std::cout << "width of shadow is " << w_shadow << "\r" << std::endl;
+
+        // get the height of shadow using minimum and maximum values
+        double h_shadow = z_vals.back() - z_vals[0];
+        // std::cout << "height of shadow is " << h_shadow << "\r" << std::endl;
+
+        return w_shadow * h_shadow;
+    }
+
+    Scene::Scene() {}
+
+    Scene::Scene(std::vector<double> dims_f, double dist_f, double dist_r) : front_plane_dims(dims_f), 
+                                                                             front_dist(dist_f),
+                                                                             rear_dist(dist_r) {
         getSceneGeometry();
-
-        // cout << "rear plane dimensions are " << rear_plane_dims[0] << ", " << rear_plane_dims[1] << endl;
-        // cout << "volume of scene is " << volume_scene << " m^2" << endl;
     }
 
     double Scene::getObjectVisibility(scene_setup::Block block)
     {
-        using namespace std;
+        std::cout << "getting occluded volume of block " << block.id << "+++++++++++++++++++\r" << std::endl;
 
         double x = block.pose.position.x;
         double y = block.pose.position.y;
@@ -152,39 +142,22 @@ namespace scene
         
         // area of the front face of the object
         double object_front_area = w * h;
-        // std::cout << "area of front plane of object is " << object_front_area << endl;
+        std::cout << "area of front plane of object is " << object_front_area << "\r" << std::endl;
 
         // volume of the object
         double object_volume = object_front_area * d;
-        // std::cout << "volume of the object is " << object_volume << endl;
+        std::cout << "volume of the object is " << object_volume << "\r" << std::endl;
 
         // distance between the front face of the object and the rear plane of the scene
-        double height = rear_dist - y + (d / 2);
-        // std::cout << "distance between two planes of frustum is " << h << endl;
+        double height = rear_dist - y + (d/2);
+        std::cout << "distance between two planes of frustum is " << height << "\r" << std::endl;
 
-        CubeFace object_face;
-        object_face.lower_right.x = x + (w / 2);
-        object_face.lower_right.y = y - (d / 2);
-        object_face.lower_right.z = z - (h / 2);
+        // initialize ObjectFacePoints object using the block
+        ObjectFacePoints front_face(block);
 
-        object_face.lower_left.x = x - (w / 2);
-        object_face.lower_left.y = y - (d / 2);
-        object_face.lower_left.z = z - (h / 2);
+        // get area of the shadow
+        double shadow_area = front_face.getShadowArea(rear_dist);
 
-        object_face.upper_right.x = x + (w / 2);
-        object_face.upper_right.y = y - (d / 2);
-        object_face.upper_right.z = z + (h / 2);
-
-        object_face.upper_left.x = x - (w / 2);
-        object_face.upper_left.y = y - (d / 2);
-        object_face.upper_left.z = z + (h / 2);
-
-        CubeFace shadow_face = object_face.getShadow(rear_dist);
-
-        double shadow_area = fabs(shadow_face.lower_right.x - shadow_face.lower_left.x) * fabs(shadow_face.upper_right.z - shadow_face.lower_right.z);
-
-        // std::cout << "area of shadow is " << shadow_area << endl;
-        
         return ((height / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
     }
 

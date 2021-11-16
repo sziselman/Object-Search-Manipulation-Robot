@@ -10,6 +10,10 @@ namespace greedy_search
         return utility < right.utility;
     }
 
+    bool BlockStruct::operator > (const BlockStruct &right) {
+        return utility > right.utility;
+    }
+
     GreedySearch::GreedySearch() {}
 
     GreedySearch::GreedySearch(std::vector<scene_setup::Block> & blocks) : objects(blocks) {}

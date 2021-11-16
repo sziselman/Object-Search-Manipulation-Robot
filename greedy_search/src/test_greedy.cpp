@@ -43,6 +43,8 @@ class TestGreedy {
             std::vector<scene_setup::Block> arrangement;
             arrangement = greedy.getArrangement();
 
+            std::cout << "arangmenet : \r" << std::endl;
+            
             for (auto a : arrangement) {
                 std::cout << "object " << a.id << std::endl;
             }

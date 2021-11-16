@@ -134,7 +134,9 @@ class FakeSearch {
                 }
 
                 // // input the blocks into the greedy search object
-                // GreedySearch greedy(blocks);
+                GreedySearch greedy(blocks);
+                std::vector<scene_setup::Block> arrangement;
+                arrangement = greedy.getArrangement();
 
                 ros::spinOnce();
                 loop_rate.sleep();

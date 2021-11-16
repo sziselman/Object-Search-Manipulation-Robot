@@ -11,9 +11,8 @@
 namespace greedy_search
 {
     struct BlockStruct {
-        scene_setup::Block block;
-
-        double utility;
+        scene_setup::Block block;           // the block msg
+        double utility;                     // the utility (used to sort the blocks)
 
         /// \brief constructor for BlockStruct object
         BlockStruct();
@@ -25,6 +24,10 @@ namespace greedy_search
         /// \brief operator overload on < (less than)
         /// returns true if the lhs utility is less than the rhs utility
         bool operator < (const BlockStruct &right);
+
+        /// \brief operator overload on > (greater than)
+        /// \returns true if the lhs utility is greater than the rhs utility
+        bool operator > (const BlockStruct &right);
         
     };
 

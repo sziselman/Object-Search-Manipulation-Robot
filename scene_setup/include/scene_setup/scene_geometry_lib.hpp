@@ -9,26 +9,16 @@
 
 namespace scene
 {
-    struct CubeFace
+    struct ObjectFacePoints
     {
-        geometry_msgs::Point lower_right;
-        geometry_msgs::Point lower_left;
-        geometry_msgs::Point upper_right;
-        geometry_msgs::Point upper_left;
+        std::vector<geometry_msgs::Point> front_face_points;
+        std::vector<geometry_msgs::Point> foot_print_points;
 
-        CubeFace();
+        ObjectFacePoints();
 
-        CubeFace(geometry_msgs::Point lr, geometry_msgs::Point ll, geometry_msgs::Point ur, geometry_msgs::Point ul);
+        ObjectFacePoints(scene_setup::Block block);
 
-        CubeFace getShadow(double distance);
-    };
-
-    /// \brief struct that stores the corner points of a block
-    struct BlockPoints
-    {
-        std::vector<geometry_msgs::Point> points;
-
-        BlockPoints(scene_setup::Block block);
+        double getShadowArea(double y_shadow);
     };
 
     class Scene
@@ -43,7 +33,7 @@ namespace scene
             void getSceneGeometry(void);
 
         public:
-            /// \brief creates a scene with 1x1 f
+            /// \brief constructor for Scene object
             Scene();
 
             /// \brief create a scene given dimensions and distance

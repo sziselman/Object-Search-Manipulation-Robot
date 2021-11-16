@@ -37,6 +37,7 @@ class ObjectScene {
             search_scene = scene::Scene(front_plane_dimensions, front_plane_distance, rear_plane_distance);
 
             visibility_service = n.advertiseService("get_visibility", &ObjectScene::visibility, this);
+            
             marker_pub = n.advertise<visualization_msgs::MarkerArray>("scene_markers", 10, true);
         }
 
