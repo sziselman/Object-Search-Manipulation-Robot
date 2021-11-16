@@ -80,7 +80,6 @@ add_service_files(
 # Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
-  geometry_msgs
   moveit_msgs
   scene_setup
   std_msgs
@@ -118,7 +117,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES manipulator_control
- CATKIN_DEPENDS geometry_msgs message_runtime roscpp scene_setup std_msgs
+ CATKIN_DEPENDS geometry_msgs message_runtime moveit_msgs roscpp scene_setup std_msgs
 #  DEPENDS system_lib
 )
 

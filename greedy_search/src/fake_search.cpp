@@ -107,9 +107,8 @@ class FakeSearch {
                     visibility_msg.request.block = block;
 
                     manipulator_control::TrajectoryExecution traj_msg;
-                    traj_msg.request.pose = block.pose;
-                    traj_msg.request.dimensions = object_dimensions;
-
+                    traj_msg.request.block = block;
+                    
                     double visibility, exec_time;
 
                     visibility_client.call(visibility_msg);

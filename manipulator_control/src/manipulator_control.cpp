@@ -62,9 +62,9 @@ class ManipulatorArm {
                            manipulator_control::TrajectoryExecution::Response &res) {
             
             geometry_msgs::Pose grab_pose;
-            grab_pose.position.x = req.pose.position.x;
-            grab_pose.position.y = req.pose.position.y;
-            grab_pose.position.z = req.pose.position.z + 0.1;
+            grab_pose.position.x = req.block.pose.position.x;
+            grab_pose.position.y = req.block.pose.position.y;
+            grab_pose.position.z = req.block.pose.position.z + 0.1;
             
             tf2::Quaternion grab_quat;
             grab_quat.setRPY(PI/2, PI/2, 0.0);
@@ -79,16 +79,11 @@ class ManipulatorArm {
                 // store the plan
                 arm_move_group.plan(plan);
 
-                // std::cout << "planned trajectory " << std::endl;
-
                 moveit_msgs::RobotTrajectory trajectory = plan.trajectory_;
+
                 trajectory_msgs::JointTrajectory joint_traj = trajectory.joint_trajectory;
 
-                // std::cout << "joint trajectory\r" << std::endl;
-
                 trajectory_msgs::JointTrajectoryPoint last_point = joint_traj.points[joint_traj.points.size()-1];
-                
-                // std::cout << "execution time " << last_point.time_from_start << "\r" << std::endl;
                 
                 res.success = true;
                 res.duration = last_point.time_from_start.toSec();

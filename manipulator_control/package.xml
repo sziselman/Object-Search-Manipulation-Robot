@@ -68,6 +68,7 @@
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
   <build_export_depend>scene_setup</build_export_depend>
+  <build_export_depend>moveit_msgs</build_export_depend>
   
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
