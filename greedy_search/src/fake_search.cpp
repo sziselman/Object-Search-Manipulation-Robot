@@ -21,14 +21,17 @@ class FakeSearch {
         ros::NodeHandle n;
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
+        ros::ServiceClient utility_client;
         ros::ServiceServer utility_service;
         ros::Publisher object_pub;
 
         // parameters
         std::vector<double> object_dimensions;
-        std::vector<double> x_locs;
-        std::vector<double> y_locs;
-        std::vector<double> z_locs;
+        std::vector<double> object1_position;
+        std::vector<double> object2_position;
+        std::vector<double> object3_position;
+
+        std::vector<std::vector<double>> object_positions;
         int frequency;
 
         // variables
@@ -43,6 +46,7 @@ class FakeSearch {
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
             utility_service = n.advertiseService("get_utility", &FakeSearch::utility, this);
+            utility_client = n.serviceClient<greedy_search::Utility>("get_utility");
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
         
             load_blocks();
@@ -53,13 +57,20 @@ class FakeSearch {
         void load_parameters(void) {
             n.getParam("object_dimensions", object_dimensions);
             n.getParam("frequency", frequency);
-            n.getParam("x_locs", x_locs);
-            n.getParam("y_locs", y_locs);
-            n.getParam("z_locs", z_locs);
+            n.getParam("object1_position", object1_position);
+            object_positions.push_back(object1_position);
+            n.getParam("object2_position", object2_position);
+            object_positions.push_back(object2_position);
+            n.getParam("object3_position", object3_position);
+            object_positions.push_back(object3_position);
 
             return;
         }
 
+        /// \brief callback function for utility service
+        /// \param req
+        /// \param res
+        /// \return boolean true
         bool utility(greedy_search::Utility::Request &req,
                      greedy_search::Utility::Response &res) {
             
@@ -99,17 +110,17 @@ class FakeSearch {
         /// takes in the (x,y,z) locations and sets them as blocks
         void load_blocks(void) {
 
-            for (int i = 0; i < x_locs.size(); i++) {
-                scene_setup::Block block;
+            int id = 1;
 
-                block.pose.position.x = x_locs[i];
-                block.pose.position.y = y_locs[i];
-                block.pose.position.z = z_locs[i];
+            for (auto pos : object_positions) {
+                scene_setup::Block block;
+                block.pose.position.x = pos[0];
+                block.pose.position.y = pos[1];
+                block.pose.position.z = pos[2];
                 block.pose.orientation.w = 1.0;
                 block.dimensions = object_dimensions;
-                block.id = i;
-                
-                std::cout << "initializing block " << block.id << "\r" << std::endl;
+                block.id = id;
+                id++;
 
                 blocks.push_back(block);
             }
@@ -122,20 +133,35 @@ class FakeSearch {
             return;
         }
 
+        /// \brief main_loop
+        /// the main loop that spins 
         void main_loop(void) {
             using namespace greedy_search;
 
             ros::Rate loop_rate(frequency);
 
             while (ros::ok()) {
+                std::cout << "loop\r" << std::endl;
 
                 // calculate the utility of each block
                 for (auto block : blocks) {
                     std::cout << block.id << "\r" << std::endl;
 
-                    
-                    // block.utility = visibility / exec_time;
-                    std::cout << "utility " << block.utility << "\r" << std::endl;
+                    greedy_search::Utility util_msg;
+                    util_msg.request.block = block;
+
+                    utility_client.call(util_msg);
+
+                    if (utility_client.call(util_msg)) {
+                        if (util_msg.response.success) {
+                            block.utility = util_msg.response.utility;
+                            std::cout << "utility " << block.utility << "\r" << std::endl;
+                        }
+                        else {
+                            block.utility = 0;
+                            std::cout << "utility unsuccessful\r" << std::endl;
+                        }
+                    }
                 }
 
                 // // input the blocks into the greedy search object
