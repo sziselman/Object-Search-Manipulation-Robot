@@ -5,11 +5,14 @@
 #include "scene_setup/Block.h"
 #include "scene_setup/BlockArray.h"
 
+#include "scene_setup/RemoveObjectId.h"
+
 class ObjectHandler {
     private:
         // pubs, subs, servs, etc.
         ros::NodeHandle n;
         ros::Publisher object_pub;
+        ros::ServiceServer remove_object_id_service;
 
         // parameters
         std::vector<double> object_dimensions;
@@ -27,6 +30,7 @@ class ObjectHandler {
         ObjectHandler() {
             load_parameters();
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
+            remove_object_id_service = n.advertiseService("remove_object_id", &ObjectHandler::remove_object_id, this);
             initialize_dictionary();
         }
 
@@ -63,6 +67,17 @@ class ObjectHandler {
                 }
             }
             scene_setup::BlockArray block_arr;
+        }
+
+        /// \brief remove_object_id
+        /// removes the object with request.id from the dictionary
+        bool remove_object_id(scene_setup::RemoveObjectId::Request &req,
+                              scene_setup::RemoveObjectId::Response &res) {
+            
+            std::cout << "erasing object of id " << req.id << "\r" << std::endl;
+            object_map.erase(req.id);
+            
+            return true;
         }
 
         /// \brief main_loop

@@ -1,10 +1,10 @@
 #include <ros/ros.h>
 
 #include "greedy_search/greedy_search_lib.hpp"
-#include "greedy_search/Utility.h"
 #include "greedy_search/StartSearch.h"
 
 #include "manipulator_control/TrajectoryExecution.h"
+#include "manipulator_control/RemoveObject.h"
 
 #include "scene_setup/Visibility.h"
 #include "scene_setup/Block.h"
@@ -28,9 +28,8 @@ class Greedy {
 
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
-        ros::ServiceClient utility_client;
+        ros::ServiceClient remove_object_client;
 
-        ros::ServiceServer utility_service;
         ros::ServiceServer search_service;
 
         ros::Subscriber object_sub;
@@ -47,6 +46,8 @@ class Greedy {
 
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
+            remove_object_client = n.serviceClient<manipulator_control::RemoveObject>("remove_object");
+            
             search_service = n.advertiseService("start_search", &Greedy::start_search, this);
 
             object_sub = n.subscribe("objects", 10, &Greedy::object_callback, this);
@@ -138,6 +139,15 @@ class Greedy {
 
             for (auto block : res.arrangement.blocks) {
                 std::cout << "block " << block.id << " utility " << block.utility << "\r" << std::endl;
+            }
+
+            manipulator_control::RemoveObject rm_msg;
+            rm_msg.request.block = res.arrangement.blocks[0];
+
+            remove_object_client.call(rm_msg);
+
+            if (remove_object_client.call(rm_msg)) {
+                std::cout << "removing object " << rm_msg.request.block.id << "\r" << std::endl;
             }
 
             return true;

@@ -32,6 +32,7 @@
 
 #include "scene_setup/Block.h"
 #include "scene_setup/BlockArray.h"
+#include "scene_setup/RemoveObjectId.h"
 
 static constexpr double PI=3.14159265358979323846;
 
@@ -45,6 +46,8 @@ class ManipulatorArm {
 
         ros::ServiceServer execution_time_service;
         ros::ServiceServer remove_object_service;
+
+        ros::ServiceClient remove_object_id_client;
 
         ros::Subscriber object_sub;
 
@@ -61,10 +64,14 @@ class ManipulatorArm {
 
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
-            execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
-            remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
-            object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
             object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10);
+
+            execution_time_service = n.advertiseService("get_execution_time", &ManipulatorArm::executionTime, this);
+            remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
+
+            remove_object_id_client = n.serviceClient<scene_setup::RemoveObjectId>("remove_object_id");
+
+            object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
         }
 
         bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
@@ -128,7 +135,7 @@ class ManipulatorArm {
             pincer_pub.publish(pincer_angle);
 
             // move the arm to the grasp pose
-            pose.position.z = req.block.pose.position.z - 0.02;
+            pose.position.z = req.block.pose.position.z - 0.01;
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
@@ -136,8 +143,6 @@ class ManipulatorArm {
 
             pincer_angle.data = 0.0;
             pincer_pub.publish(pincer_angle);
-
-            // TODO: attach collision object to arm!!!
 
             pose.position.x = req.block.pose.position.y;
             pose.position.y = req.block.pose.position.x;
@@ -156,6 +161,12 @@ class ManipulatorArm {
 
             pincer_angle.data = 0.90;
             pincer_pub.publish(pincer_angle);
+
+            scene_setup::RemoveObjectId msg;
+            msg.request.id = req.block.id;
+
+            remove_object_id_client.call(msg);
+
             return true;
         }
         
@@ -185,6 +196,8 @@ class ManipulatorArm {
             }
 
             object_marker_pub.publish(object_arr);
+
+            object_arr.markers.clear();
 
             return;
         }
