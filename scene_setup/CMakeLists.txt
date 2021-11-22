@@ -59,7 +59,7 @@ add_service_files(
 generate_messages(
   DEPENDENCIES
   geometry_msgs
-  scene_setup
+  # ${PROJECT_NAME}
   std_msgs
 )
 

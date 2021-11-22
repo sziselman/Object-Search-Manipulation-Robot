@@ -49,7 +49,6 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
     FILES 
     StartSearch.srv
-    Utility.srv
 )
 
 ## Generate messages in the 'msg' folder

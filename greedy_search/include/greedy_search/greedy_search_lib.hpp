@@ -45,7 +45,7 @@ namespace greedy_search
 
             /// \brief constructor for GreedySearch object
             /// \param blocks : a vector of poses that represent the blocks seen from the RealSense camera
-            GreedySearch(std::vector<scene_setup::Block> & blocks);
+            GreedySearch(std::vector<scene_setup::Block> blocks);
 
             /// \brief gets the optimal arrangement using greedy search
             /// \return a list of blocks in order of arrangement

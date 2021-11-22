@@ -9,5 +9,5 @@
         <arg name="sim" value="true"/>
     </include>
 
-    <node name="fake_search" pkg="greedy_search" type="fake_search" output="screen"/>
+    <node name="greedy" pkg="greedy_search" type="greedy" output="screen"/>
 </launch>

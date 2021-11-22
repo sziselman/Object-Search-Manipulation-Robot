@@ -23,16 +23,14 @@ class ObjectHandler {
         // maps the block id to the block
         std::map<int, scene_setup::Block> object_map = {};
 
-        // variables
-        scene_setup::BlockArray block_arr;
-
     public:
         ObjectHandler() {
             load_parameters();
-            initialize_dictionary();
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
+            initialize_dictionary();
         }
 
+        /// \brief load_parameters : loading the parameters from server
         void load_parameters(void) {
             n.getParam("object_dimensions", object_dimensions);
             n.getParam("object1_position", object1_position);
@@ -44,6 +42,8 @@ class ObjectHandler {
             n.getParam("frequency", frequency);
         }
 
+        /// \brief initialize_dictionary
+        /// reads block locations from parameter server, inserts them into a dictionary
         void initialize_dictionary(void) {
             int id = 1;
             for (auto pos : object_positions) {
@@ -58,12 +58,18 @@ class ObjectHandler {
                 id++;
                 
                 // insert block into the map
-                object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+                if (object_map.find(block.id) == object_map.end()) {
+                    object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+                }
             }
+            scene_setup::BlockArray block_arr;
         }
 
+        /// \brief main_loop
+        /// the main loop that gets executed after each spin
         void main_loop(void) {
             ros::Rate loop_rate(100);
+            scene_setup::BlockArray block_arr;
 
             while (ros::ok()) {
 
@@ -72,13 +78,14 @@ class ObjectHandler {
                 }
 
                 object_pub.publish(block_arr);
+
+                block_arr.blocks.clear();
                 
                 ros::spinOnce();
                 loop_rate.sleep();
             }
             return;
         }
-
 };
 
 int main(int argc, char* argv[]) {

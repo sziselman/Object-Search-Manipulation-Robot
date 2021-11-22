@@ -40,8 +40,6 @@ class Greedy {
 
         // variables
         std::vector<scene_setup::Block> blocks;
-        bool vis_received = false;
-        bool traj_received = false;
 
     public:
         Greedy() {
@@ -49,9 +47,6 @@ class Greedy {
 
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
-            utility_client = n.serviceClient<greedy_search::Utility>("get_utility");
-
-            utility_service = n.advertiseService("get_utility", &Greedy::utility, this);
             search_service = n.advertiseService("start_search", &Greedy::start_search, this);
 
             object_sub = n.subscribe("objects", 10, &Greedy::object_callback, this);
@@ -78,75 +73,59 @@ class Greedy {
             return;
         }
 
-        /// \brief callback function for utility service
-        /// \param req
-        /// \param res
-        /// \return boolean true
-        bool utility(greedy_search::Utility::Request &req,
-                     greedy_search::Utility::Response &res) {
-            
-            // create service messages
+        /// \brief getUtility
+        /// \param block : the block to calculate the utility of
+        /// \return the block with updated utility
+
+        scene_setup::Block getUtility(scene_setup::Block block) {
             scene_setup::Visibility vis_msg;
             manipulator_control::TrajectoryExecution traj_msg;
 
-            // populate those messages
-            vis_msg.request.block = req.block;
-            traj_msg.request.block = req.block;
+            vis_msg.request.block = block;
+            traj_msg.request.block = block;
 
             visibility_client.call(vis_msg);
             execution_time_client.call(traj_msg);
 
             if (visibility_client.call(vis_msg) && execution_time_client.call(traj_msg)) {
                 double visibility = vis_msg.response.visibility;
-                std::cout << "visibility of block " << req.block.id << " is " << visibility << "\r" << std::endl;
+                std::cout << "visibility of block " << block.id << " is " << visibility << "\r" << std::endl;
 
                 // if planned removal of object is successful, get the trajectory execution time
                 if (traj_msg.response.success) {
                     double exec_time = traj_msg.response.duration;
-                    std::cout << "execution time of block " << req.block.id << " is " << exec_time << "\r" << std::endl;
-                    res.success = true;
-                    res.utility = visibility / exec_time;
+                    std::cout << "execution time of block " << block.id << " is " << exec_time << "\r" << std::endl;
+                    block.utility = visibility / exec_time;
+
+                    std::cout << "utility of block " << block.id << " is " << block.utility << "\r" << std::endl;
                 }
                 // if planned removal of object is unsucessful, set the utility very low
                 else {
-                    res.success = false;
-                    res.utility = -1e4;
+                    block.utility = 0;
                 }
             }
-
-            return true;
+            return block;
         }
 
         /// \brief callback function for /start_service topic 
         /// gets the utility of each object and sorts into arrangment
         bool start_search(greedy_search::StartSearch::Request &req,
                           greedy_search::StartSearch::Response &res) {
-
-            using namespace greedy_search;
             
             std::cout << "calculating utility of blocks\r" << std::endl;
 
+            std::vector<scene_setup::Block> updated_blocks;
+            // calculate the utility for each block
             for (auto block : blocks) {
-                greedy_search::Utility util_msg;
-                util_msg.request.block = block;
-
-                utility_client.call(util_msg);
-
-                if (utility_client.call(util_msg)) {
-                    if (util_msg.response.success) {
-                        block.utility = util_msg.response.utility;
-                        std::cout << "utility of block " << block.id << " is " << block.utility << "\r" << std::endl;
-                    }
-                    else {
-                        block.utility = 0;
-                        std::cout << "utility unsuccessful\r" << std::endl;
-                    }
-                }
+                // calculate the utility of the block
+                updated_blocks.push_back(getUtility(block));
             }
+
+            blocks = updated_blocks;
 
             std::cout << "performing greedy search on blocks\r" << std::endl;
 
-            GreedySearch greedy(blocks);
+            greedy_search::GreedySearch greedy(blocks);
             std::vector<scene_setup::Block> arrangement;
             arrangement = greedy.getArrangement();
 
@@ -154,6 +133,8 @@ class Greedy {
             arr.blocks = arrangement;
 
             res.arrangement = arr;
+
+            std::cout << "found arrangement\r" << std::endl;
 
             for (auto block : res.arrangement.blocks) {
                 std::cout << "block " << block.id << " utility " << block.utility << "\r" << std::endl;

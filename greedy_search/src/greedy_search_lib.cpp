@@ -4,7 +4,7 @@ namespace greedy_search
 {
     BlockStruct::BlockStruct() {}
     
-    BlockStruct::BlockStruct(scene_setup::Block &b) : block(b), utility(b.utility) {}
+    BlockStruct::BlockStruct(scene_setup::Block &b) : block(b) , utility(b.utility) {}
 
     bool BlockStruct::operator < (const BlockStruct &right) {
         return utility < right.utility;
@@ -16,7 +16,7 @@ namespace greedy_search
 
     GreedySearch::GreedySearch() {}
 
-    GreedySearch::GreedySearch(std::vector<scene_setup::Block> & blocks) : objects(blocks) {}
+    GreedySearch::GreedySearch(std::vector<scene_setup::Block> blocks) : objects(blocks) {}
 
     std::vector<scene_setup::Block> GreedySearch::getArrangement(void) {
 
