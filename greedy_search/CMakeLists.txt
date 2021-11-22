@@ -48,6 +48,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_service_files(
     FILES 
+    StartSearch.srv
     Utility.srv
 )
 
@@ -129,7 +130,7 @@ add_library(${PROJECT_NAME}_lib
 # Declare a C++ executable
 # With catkin_make all packages are built within a single CMake context
 # The recommended prefix ensures that target names across packages don't collide
-add_executable(fake_search src/fake_search.cpp)
+add_executable(greedy src/greedy.cpp)
 add_executable(test_greedy src/test_greedy.cpp)
 
 ## Rename C++ executable without prefix
@@ -140,12 +141,12 @@ add_executable(test_greedy src/test_greedy.cpp)
 
 # Add cmake target dependencies of the executable
 # same as for the library above
-add_dependencies(fake_search ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(greedy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(test_greedy ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
-target_link_libraries(fake_search ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
+target_link_libraries(greedy ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
 target_link_libraries(test_greedy ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
 
 #############
@@ -157,7 +158,7 @@ target_link_libraries(test_greedy ${catkin_LIBRARIES} ${PROJECT_NAME}_lib)
 
 # Mark executables for installation
 # See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS fake_search test_greedy
+install(TARGETS greedy test_greedy
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

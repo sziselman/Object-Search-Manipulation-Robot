@@ -2,6 +2,7 @@
 
 #include "greedy_search/greedy_search_lib.hpp"
 #include "greedy_search/Utility.h"
+#include "greedy_search/StartSearch.h"
 
 #include "manipulator_control/TrajectoryExecution.h"
 
@@ -10,28 +11,31 @@
 #include "scene_setup/BlockArray.h"
 
 #include <geometry_msgs/Pose.h>
+
 #include <visualization_msgs/Marker.h>
+
 #include <tf2/LinearMath/Quaternion.h>
+
+#include <std_srvs/Empty.h>
+
 #include <vector>
 #include <string>
 
-class FakeSearch {
+class Greedy {
     private:
         // ros objects
         ros::NodeHandle n;
+
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
         ros::ServiceClient utility_client;
+
         ros::ServiceServer utility_service;
-        ros::Publisher object_pub;
+        ros::ServiceServer search_service;
+
+        ros::Subscriber object_sub;
 
         // parameters
-        std::vector<double> object_dimensions;
-        std::vector<double> object1_position;
-        std::vector<double> object2_position;
-        std::vector<double> object3_position;
-
-        std::vector<std::vector<double>> object_positions;
         int frequency;
 
         // variables
@@ -40,29 +44,36 @@ class FakeSearch {
         bool traj_received = false;
 
     public:
-        FakeSearch() {
+        Greedy() {
             load_parameters();
 
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
-            utility_service = n.advertiseService("get_utility", &FakeSearch::utility, this);
             utility_client = n.serviceClient<greedy_search::Utility>("get_utility");
-            object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
-        
-            load_blocks();
+
+            utility_service = n.advertiseService("get_utility", &Greedy::utility, this);
+            search_service = n.advertiseService("start_search", &Greedy::start_search, this);
+
+            object_sub = n.subscribe("objects", 10, &Greedy::object_callback, this);
         }
 
         /// \brief load_parameters 
         /// loads the parameters from the parameter server
         void load_parameters(void) {
-            n.getParam("object_dimensions", object_dimensions);
             n.getParam("frequency", frequency);
-            n.getParam("object1_position", object1_position);
-            object_positions.push_back(object1_position);
-            n.getParam("object2_position", object2_position);
-            object_positions.push_back(object2_position);
-            n.getParam("object3_position", object3_position);
-            object_positions.push_back(object3_position);
+            return;
+        }
+        
+        /// \brief object_callback
+        /// subscribes to the /objects topic to read in the objects that are seen
+        void object_callback(const scene_setup::BlockArray msg) {
+            std::vector<scene_setup::Block> incoming_blocks;
+
+            for (auto block : msg.blocks) {
+                incoming_blocks.push_back(block);
+            }
+
+            blocks = incoming_blocks;
 
             return;
         }
@@ -106,68 +117,58 @@ class FakeSearch {
             return true;
         }
 
-        /// \brief load_blocks
-        /// takes in the (x,y,z) locations and sets them as blocks
-        void load_blocks(void) {
+        /// \brief callback function for /start_service topic 
+        /// gets the utility of each object and sorts into arrangment
+        bool start_search(greedy_search::StartSearch::Request &req,
+                          greedy_search::StartSearch::Response &res) {
 
-            int id = 1;
+            using namespace greedy_search;
+            
+            std::cout << "calculating utility of blocks\r" << std::endl;
 
-            for (auto pos : object_positions) {
-                scene_setup::Block block;
-                block.pose.position.x = pos[0];
-                block.pose.position.y = pos[1];
-                block.pose.position.z = pos[2];
-                block.pose.orientation.w = 1.0;
-                block.dimensions = object_dimensions;
-                block.id = id;
-                id++;
+            for (auto block : blocks) {
+                greedy_search::Utility util_msg;
+                util_msg.request.block = block;
 
-                blocks.push_back(block);
+                utility_client.call(util_msg);
+
+                if (utility_client.call(util_msg)) {
+                    if (util_msg.response.success) {
+                        block.utility = util_msg.response.utility;
+                        std::cout << "utility of block " << block.id << " is " << block.utility << "\r" << std::endl;
+                    }
+                    else {
+                        block.utility = 0;
+                        std::cout << "utility unsuccessful\r" << std::endl;
+                    }
+                }
             }
 
-            scene_setup::BlockArray block_array;
-            block_array.blocks = blocks;
-            
-            object_pub.publish(block_array);
+            std::cout << "performing greedy search on blocks\r" << std::endl;
 
-            return;
+            GreedySearch greedy(blocks);
+            std::vector<scene_setup::Block> arrangement;
+            arrangement = greedy.getArrangement();
+
+            scene_setup::BlockArray arr;
+            arr.blocks = arrangement;
+
+            res.arrangement = arr;
+
+            for (auto block : res.arrangement.blocks) {
+                std::cout << "block " << block.id << " utility " << block.utility << "\r" << std::endl;
+            }
+
+            return true;
         }
 
         /// \brief main_loop
         /// the main loop that spins 
         void main_loop(void) {
-            using namespace greedy_search;
 
             ros::Rate loop_rate(frequency);
 
             while (ros::ok()) {
-                std::cout << "loop\r" << std::endl;
-
-                // calculate the utility of each block
-                for (auto block : blocks) {
-                    std::cout << block.id << "\r" << std::endl;
-
-                    greedy_search::Utility util_msg;
-                    util_msg.request.block = block;
-
-                    utility_client.call(util_msg);
-
-                    if (utility_client.call(util_msg)) {
-                        if (util_msg.response.success) {
-                            block.utility = util_msg.response.utility;
-                            std::cout << "utility " << block.utility << "\r" << std::endl;
-                        }
-                        else {
-                            block.utility = 0;
-                            std::cout << "utility unsuccessful\r" << std::endl;
-                        }
-                    }
-                }
-
-                // // input the blocks into the greedy search object
-                GreedySearch greedy(blocks);
-                std::vector<scene_setup::Block> arrangement;
-                arrangement = greedy.getArrangement();
 
                 ros::spinOnce();
                 loop_rate.sleep();
@@ -179,7 +180,7 @@ class FakeSearch {
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "fake_search");
-    FakeSearch node;
+    Greedy node;
     node.main_loop();
     return 0;
 }

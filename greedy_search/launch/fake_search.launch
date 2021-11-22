@@ -1,7 +1,8 @@
 <launch>
     <rosparam command="load" file="$(find scene_setup)/config/scene_params.yaml"/>
-    <rosparam command="load" file="$(find greedy_search)/config/block_locations.yaml"/>
 
+    <node name="object_handler" pkg="scene_setup" type="object_handler" output="screen"/>
+    
     <node name="scene_setup" pkg="scene_setup" type="scene_setup" output="screen"/>
     
     <include file="$(find manipulator_control)/launch/manipulator.launch">
