@@ -12,8 +12,12 @@
 #include <shape_msgs/SolidPrimitive.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
+
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/TransformStamped.h>
+
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
 
 #include <trajectory_msgs/JointTrajectory.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
@@ -35,9 +39,13 @@ class ManipulatorArm {
     private:
         // ros variables
         ros::NodeHandle n;
+
         ros::Publisher pincer_pub;
+        ros::Publisher object_marker_pub;
+
         ros::ServiceServer execution_time_service;
         ros::ServiceServer remove_object_service;
+
         ros::Subscriber object_sub;
 
         // move it variables
@@ -56,6 +64,7 @@ class ManipulatorArm {
             execution_time_service = n.advertiseService("/get_execution_time", &ManipulatorArm::executionTime, this);
             remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
             object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
+            object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10);
         }
 
         bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
@@ -151,42 +160,32 @@ class ManipulatorArm {
         }
         
         void object_callback(const scene_setup::BlockArray msg) {
-            
-            std::vector<moveit_msgs::CollisionObject> collision_objects;
+            visualization_msgs::MarkerArray object_arr;
 
-            // loop through all blocks received and add them as collision objects to the MoveIt planner
             for (auto block : msg.blocks) {
-                std::cout << "object array received!!++++++++++++++++++++++++++++++++++++++++++ \r" << std::endl;
+                visualization_msgs::Marker obj;
 
+                obj.header.frame_id = "base_link";
+                obj.ns = "objects";
+                obj.id = block.id;
 
-                moveit_msgs::CollisionObject object;
-                object.id = "block" + std::to_string(block.id);
-                std::cout << object.id << "\r" << std::endl;
-                object.header.frame_id = "base_link";
-                
-                // define a box to add to the world
-                shape_msgs::SolidPrimitive primitive;
-                primitive.type = primitive.BOX;
-                primitive.dimensions.resize(3);
-                primitive.dimensions[primitive.BOX_X] = block.dimensions[0];
-                primitive.dimensions[primitive.BOX_Y] = block.dimensions[1];
-                primitive.dimensions[primitive.BOX_Z] = block.dimensions[2];
+                obj.type = 1;
+                obj.action = 0;
 
-                // define a pose for the box
-                geometry_msgs::Pose box_pose;
-                box_pose.orientation.x = 1.0;
-                box_pose.position.x = block.pose.position.x;
-                box_pose.position.y = block.pose.position.y;
-                box_pose.position.z = block.pose.position.z;
+                obj.pose = block.pose;
+                obj.scale.x = block.dimensions[0];
+                obj.scale.y = block.dimensions[1];
+                obj.scale.z = block.dimensions[2];
+                obj.color.a = 1.0;
+                obj.color.r = 250./255.;
+                obj.color.g = 218./255.;
+                obj.color.b = 221./255.;
 
-                object.primitives.push_back(primitive);
-                object.primitive_poses.push_back(box_pose);
-                object.operation = object.ADD;
-
-                collision_objects.push_back(object);
+                object_arr.markers.push_back(obj);
             }
 
-            planning_scene_interface.addCollisionObjects(collision_objects);
+            object_marker_pub.publish(object_arr);
+
             return;
         }
 
