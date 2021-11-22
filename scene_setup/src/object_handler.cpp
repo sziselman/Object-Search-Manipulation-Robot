@@ -19,12 +19,15 @@ class ObjectHandler {
         std::vector<double> object1_position;
         std::vector<double> object2_position;
         std::vector<double> object3_position;
+        std::vector<double> goal_object_position;
         std::vector<std::vector<double>> object_positions;
         int frequency;
 
         // set that takes care of the objects within the scene
         // maps the block id to the block
         std::map<int, scene_setup::Block> object_map = {};
+
+        scene_setup::BlockArray block_arr;
 
     public:
         ObjectHandler() {
@@ -44,12 +47,15 @@ class ObjectHandler {
             n.getParam("object3_position", object3_position);
             object_positions.push_back(object3_position);
             n.getParam("frequency", frequency);
+
+            n.getParam("goal_object_position", goal_object_position);
         }
 
         /// \brief initialize_dictionary
         /// reads block locations from parameter server, inserts them into a dictionary
         void initialize_dictionary(void) {
             int id = 1;
+            // add the objects within the scene
             for (auto pos : object_positions) {
                 // initialize block object
                 scene_setup::Block block;
@@ -59,6 +65,7 @@ class ObjectHandler {
                 block.pose.orientation.w = 1.0;
                 block.dimensions = object_dimensions;
                 block.id = id;
+                goal = false;
                 id++;
                 
                 // insert block into the map
@@ -66,7 +73,6 @@ class ObjectHandler {
                     object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
                 }
             }
-            scene_setup::BlockArray block_arr;
         }
 
         /// \brief remove_object_id
@@ -84,7 +90,6 @@ class ObjectHandler {
         /// the main loop that gets executed after each spin
         void main_loop(void) {
             ros::Rate loop_rate(100);
-            scene_setup::BlockArray block_arr;
 
             while (ros::ok()) {
 
@@ -92,6 +97,17 @@ class ObjectHandler {
                     block_arr.blocks.push_back(val.second);
                 }
 
+                // scene_setup::Block goal_block;
+                // goal_block.pose.position.x = goal_object_position[0];
+                // goal_block.pose.position.y = goal_object_position[1];
+                // goal_block.pose.position.z = goal_object_position[2];
+                // goal_block.orientation.w = 1.0;
+                // goal_block.dimensions = object_dimensions;
+                // block.id = 0
+                // goal = true;
+
+                // block_arr.blocks.push_back(goal_block);
+                
                 object_pub.publish(block_arr);
 
                 block_arr.blocks.clear();

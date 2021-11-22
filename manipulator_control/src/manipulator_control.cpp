@@ -58,6 +58,9 @@ class ManipulatorArm {
 
         moveit_visual_tools::MoveItVisualTools visual_tools;
 
+        // variables
+        visualization_msgs::MarkerArray object_arr;
+
     public:
         ManipulatorArm(std::string planning_group, std::string frame) : arm_move_group(planning_group),
                                                                         visual_tools(frame) {
@@ -171,7 +174,6 @@ class ManipulatorArm {
         }
         
         void object_callback(const scene_setup::BlockArray msg) {
-            visualization_msgs::MarkerArray object_arr;
 
             for (auto block : msg.blocks) {
                 visualization_msgs::Marker obj;
@@ -196,6 +198,10 @@ class ManipulatorArm {
             }
 
             object_marker_pub.publish(object_arr);
+
+            for (auto obj : object_arr.markers) {
+                obj.action = 2;
+            }
 
             object_arr.markers.clear();
 
