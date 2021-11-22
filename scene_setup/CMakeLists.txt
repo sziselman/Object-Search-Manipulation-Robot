@@ -129,6 +129,7 @@ add_library(scene_geometry_lib
 # The recommended prefix ensures that target names across packages don't collide
 add_executable(${PROJECT_NAME} src/scene_setup.cpp)
 add_executable(fake_blocks src/fake_blocks.cpp)
+add_executable(object_handler src/object_handler.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -140,11 +141,14 @@ add_executable(fake_blocks src/fake_blocks.cpp)
 # same as for the library above
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(fake_blocks ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(object_handler ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Specify libraries to link a library or executable target against
 target_link_libraries(scene_geometry_lib ${catkin_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} scene_geometry_lib)
 target_link_libraries(fake_blocks ${catkin_LIBRARIES} scene_geometry_lib)
+target_link_libraries(object_handler ${catkin_LIBRARIES} scene_geometry_lib)
+
 
 #############
 ## Install ##
@@ -155,7 +159,7 @@ target_link_libraries(fake_blocks ${catkin_LIBRARIES} scene_geometry_lib)
 
 # Mark executables for installation
 # See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-install(TARGETS fake_blocks ${PROJECT_NAME}
+install(TARGETS fake_blocks object_handler ${PROJECT_NAME}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
