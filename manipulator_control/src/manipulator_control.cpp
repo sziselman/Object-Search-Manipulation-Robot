@@ -42,7 +42,6 @@ class ManipulatorArm {
         ros::NodeHandle n;
 
         ros::Publisher pincer_pub;
-        ros::Publisher object_marker_pub;
 
         ros::ServiceServer execution_time_service;
         ros::ServiceServer remove_object_service;
@@ -67,7 +66,6 @@ class ManipulatorArm {
 
             // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
-            object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10);
 
             execution_time_service = n.advertiseService("get_execution_time", &ManipulatorArm::executionTime, this);
             remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
@@ -132,6 +130,9 @@ class ManipulatorArm {
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
             }
+            else {
+                return false;
+            }
 
             std_msgs::Float64 pincer_angle;
             pincer_angle.data = 0.90;
@@ -143,27 +144,45 @@ class ManipulatorArm {
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
             }
+            else {
+                return false;
+            }
 
-            pincer_angle.data = 0.0;
-            pincer_pub.publish(pincer_angle);
+            // pincer_angle.data = 0.0;
+            // pincer_pub.publish(pincer_angle);
+
+            // move arm back to pre grasp pose
+            pose.position.z = req.block.pose.position.z + 0.075;
+            arm_move_group.setPoseTarget(pose);
+            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+                arm_move_group.move();
+            }
+            else {
+                return false;
+            }
 
             pose.position.x = req.block.pose.position.y;
             pose.position.y = req.block.pose.position.x;
-            pose.position.z = req.block.pose.position.z + 0.075;
-
+            // pose.position.z = req.block.pose.position.z + 0.075;
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
             }
+            else {
+                return false;
+            }
 
-            pose.position.z = req.block.pose.position.z - 0.02;
+            pose.position.z = req.block.pose.position.z - 0.01;
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
             }
+            else {
+                return false;
+            }
 
-            pincer_angle.data = 0.90;
-            pincer_pub.publish(pincer_angle);
+            // pincer_angle.data = 0.90;
+            // pincer_pub.publish(pincer_angle);
 
             scene_setup::RemoveObjectId msg;
             msg.request.id = req.block.id;
@@ -174,36 +193,6 @@ class ManipulatorArm {
         }
         
         void object_callback(const scene_setup::BlockArray msg) {
-
-            for (auto block : msg.blocks) {
-                visualization_msgs::Marker obj;
-
-                obj.header.frame_id = "base_link";
-                obj.ns = "objects";
-                obj.id = block.id;
-
-                obj.type = 1;
-                obj.action = 0;
-
-                obj.pose = block.pose;
-                obj.scale.x = block.dimensions[0];
-                obj.scale.y = block.dimensions[1];
-                obj.scale.z = block.dimensions[2];
-                obj.color.a = 1.0;
-                obj.color.r = 250./255.;
-                obj.color.g = 218./255.;
-                obj.color.b = 221./255.;
-
-                object_arr.markers.push_back(obj);
-            }
-
-            object_marker_pub.publish(object_arr);
-
-            for (auto obj : object_arr.markers) {
-                obj.action = 2;
-            }
-
-            object_arr.markers.clear();
 
             return;
         }

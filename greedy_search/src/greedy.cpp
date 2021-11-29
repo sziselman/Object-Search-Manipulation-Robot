@@ -116,6 +116,7 @@ class Greedy {
             std::cout << "calculating utility of blocks\r" << std::endl;
 
             std::vector<scene_setup::Block> updated_blocks;
+            
             // calculate the utility for each block
             for (auto block : blocks) {
                 // calculate the utility of the block

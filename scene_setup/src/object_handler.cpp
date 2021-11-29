@@ -2,6 +2,9 @@
 #include <map>
 #include <vector>
 
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
+
 #include "scene_setup/Block.h"
 #include "scene_setup/BlockArray.h"
 
@@ -12,6 +15,7 @@ class ObjectHandler {
         // pubs, subs, servs, etc.
         ros::NodeHandle n;
         ros::Publisher object_pub;
+        ros::Publisher object_marker_pub;
         ros::ServiceServer remove_object_id_service;
 
         // parameters
@@ -28,13 +32,18 @@ class ObjectHandler {
         std::map<int, scene_setup::Block> object_map = {};
 
         scene_setup::BlockArray block_arr;
+        visualization_msgs::MarkerArray marker_arr;
 
     public:
         ObjectHandler() {
             load_parameters();
+
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
+            object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10, true);
             remove_object_id_service = n.advertiseService("remove_object_id", &ObjectHandler::remove_object_id, this);
+            
             initialize_dictionary();
+            initialize_object_markers();
         }
 
         /// \brief load_parameters : loading the parameters from server
@@ -65,7 +74,7 @@ class ObjectHandler {
                 block.pose.orientation.w = 1.0;
                 block.dimensions = object_dimensions;
                 block.id = id;
-                goal = false;
+                block.goal = false;
                 id++;
                 
                 // insert block into the map
@@ -82,8 +91,46 @@ class ObjectHandler {
             
             std::cout << "erasing object of id " << req.id << "\r" << std::endl;
             object_map.erase(req.id);
+
+            // loops through the marker array and deletes marker with req.id
+            for (auto obj : marker_arr.markers) {
+                if (obj.id == req.id) {
+                    obj.action = 2;
+                }
+            }
+
+            object_marker_pub.publish(marker_arr);
             
             return true;
+        }
+
+        /// \brief initialize_object_markers
+        /// initializes the marker array
+        void initialize_object_markers(void) {
+            // loop through the initialized dictionary and publish the markers
+            for (auto const& val : object_map) {
+                visualization_msgs::Marker obj;
+
+                obj.header.frame_id = "base_link";
+                obj.ns = "objects";
+                obj.id = val.second.id;
+
+                obj.type = 1;
+                obj.action = 0;
+
+                obj.pose = val.second.pose;
+                obj.scale.x = val.second.dimensions[0];
+                obj.scale.y = val.second.dimensions[1];
+                obj.scale.z = val.second.dimensions[2];
+                obj.color.a = 1.0;
+                obj.color.r = 250./255.;
+                obj.color.g = 218./255.;
+                obj.color.b = 221./255.;
+
+                marker_arr.markers.push_back(obj);
+            }
+
+            object_marker_pub.publish(marker_arr);
         }
 
         /// \brief main_loop
