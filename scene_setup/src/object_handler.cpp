@@ -14,8 +14,11 @@ class ObjectHandler {
     private:
         // pubs, subs, servs, etc.
         ros::NodeHandle n;
+
         ros::Publisher object_pub;
         ros::Publisher object_marker_pub;
+        ros::Publisher target_marker_pub;
+
         ros::ServiceServer remove_object_id_service;
 
         // parameters
@@ -39,11 +42,14 @@ class ObjectHandler {
             load_parameters();
 
             object_pub = n.advertise<scene_setup::BlockArray>("objects", 10, true);
+            target_marker_pub = n.advertise<visualization_msgs::Marker>("target_marker", 10, true);
             object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10, true);
+
             remove_object_id_service = n.advertiseService("remove_object_id", &ObjectHandler::remove_object_id, this);
             
             initialize_dictionary();
             initialize_object_markers();
+            initialize_target_marker();
         }
 
         /// \brief load_parameters : loading the parameters from server
@@ -108,6 +114,30 @@ class ObjectHandler {
             return true;
         }
 
+        void initialize_target_marker(void) {
+
+            visualization_msgs::Marker target;
+            target.header.frame_id = "base_link";
+            target.ns = "target";
+            target.type = 1;
+            target.action = 0;
+            target.id = 0;
+            target.pose.position.x = goal_object_position[0];
+            target.pose.position.y = goal_object_position[1];
+            target.pose.position.z = goal_object_position[2];
+            target.scale.x = object_dimensions[0];
+            target.scale.y = object_dimensions[1];
+            target.scale.z = object_dimensions[2];
+            target.color.a = 1.0;
+            target.color.r = 202./255.;
+            target.color.g = 231./255.;
+            target.color.b = 193./255.;
+
+            target_marker_pub.publish(target);
+
+            return;
+        }
+
         /// \brief initialize_object_markers
         /// initializes the marker array
         void initialize_object_markers(void) {
@@ -135,21 +165,6 @@ class ObjectHandler {
 
                 marker_arr.markers.push_back(obj);
             }
-
-            // add the goal object as a marker
-            obj.id = 0;
-            obj.pose.position.x = goal_object_position[0];
-            obj.pose.position.y = goal_object_position[1];
-            obj.pose.position.z = goal_object_position[2];
-            obj.scale.x = object_dimensions[0];
-            obj.scale.y = object_dimensions[1];
-            obj.scale.z = object_dimensions[2];
-            obj.color.a = 1.0;
-            obj.color.r = 202./255.;
-            obj.color.g = 231./255.;
-            obj.color.b = 193./255.;
-
-            marker_arr.markers.push_back(obj);
 
             object_marker_pub.publish(marker_arr);
 
