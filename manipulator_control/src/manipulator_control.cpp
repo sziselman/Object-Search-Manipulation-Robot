@@ -1,4 +1,6 @@
 #include <ros/ros.h>
+#include <ros/console.h>
+
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/planning_scene_interface/planning_scene_interface.h>
 
@@ -84,7 +86,7 @@ class ManipulatorArm {
             grab_pose.position.z = req.block.pose.position.z + 0.1;
             
             tf2::Quaternion grab_quat;
-            grab_quat.setRPY(PI/2, PI/2, 0.0);
+            grab_quat.setRPY(0.0, PI/2, 0.0);
             grab_pose.orientation = tf2::toMsg(grab_quat);
             
             arm_move_group.setPoseTarget(grab_pose);
@@ -116,10 +118,10 @@ class ManipulatorArm {
         bool removeObject(manipulator_control::RemoveObject::Request &req,
                           manipulator_control::RemoveObject::Response &res) {
             
-            // move the arm to the pre grasp pose
+            // move the arm to the pre-grasp pose
             geometry_msgs::Pose pose;
             tf2::Quaternion quat;
-            quat.setRPY(PI/2, PI/2, 0.0);
+            quat.setRPY(0.0, PI/2, 0.0);
             pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.x;
             pose.position.y = req.block.pose.position.y;
@@ -140,30 +142,49 @@ class ManipulatorArm {
 
             // move the arm to the grasp pose
             pose.position.z = req.block.pose.position.z - 0.01;
-            arm_move_group.setPoseTarget(pose);
-            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-                arm_move_group.move();
+
+            std::vector<geometry_msgs::Pose> waypoints;
+            waypoints.push_back(pose);
+
+            moveit_msgs::RobotTrajectory traj;
+
+            const double jump_thresh = 0.0;
+            const double eef_step = 0.01;
+            double fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
+
+            if (fraction == 1.0) {
+                arm_move_group.execute(traj);
             }
             else {
+                std::cout << "planning failed :( \r" << std::endl;
                 return false;
             }
+            
 
-            // pincer_angle.data = 0.0;
-            // pincer_pub.publish(pincer_angle);
+            pincer_angle.data = 0.0;
+            pincer_pub.publish(pincer_angle);
 
             // move arm back to pre grasp pose
+
             pose.position.z = req.block.pose.position.z + 0.075;
-            arm_move_group.setPoseTarget(pose);
-            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-                arm_move_group.move();
+
+            waypoints.clear();
+            waypoints.push_back(pose);
+
+            fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
+
+            if (fraction == 1.0) {
+                arm_move_group.execute(traj);
             }
             else {
+                std::cout << "planning failed >:( \r" << std::endl;
                 return false;
             }
 
+            quat.setRPY(PI/2, PI/2, 0.0);
+            pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.y;
             pose.position.y = req.block.pose.position.x;
-            // pose.position.z = req.block.pose.position.z + 0.075;
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
@@ -173,16 +194,22 @@ class ManipulatorArm {
             }
 
             pose.position.z = req.block.pose.position.z - 0.01;
-            arm_move_group.setPoseTarget(pose);
-            if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-                arm_move_group.move();
+
+            waypoints.clear();
+            waypoints.push_back(pose);
+
+            fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
+
+            if (fraction == 1.0) {
+                arm_move_group.execute(traj);
             }
             else {
+                std::cout << "planning failed D: \r" << std::endl;
                 return false;
             }
 
-            // pincer_angle.data = 0.90;
-            // pincer_pub.publish(pincer_angle);
+            pincer_angle.data = 0.90;
+            pincer_pub.publish(pincer_angle);
 
             scene_setup::RemoveObjectId msg;
             msg.request.id = req.block.id;

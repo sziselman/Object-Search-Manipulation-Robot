@@ -145,8 +145,6 @@ class Greedy {
             manipulator_control::RemoveObject rm_msg;
             rm_msg.request.block = res.arrangement.blocks[0];
 
-            remove_object_client.call(rm_msg);
-
             if (remove_object_client.call(rm_msg)) {
                 std::cout << "removing object " << rm_msg.request.block.id << "\r" << std::endl;
             }
