@@ -77,17 +77,13 @@ class Greedy {
         /// \brief getUtility
         /// \param block : the block to calculate the utility of
         /// \return the block with updated utility
-
         scene_setup::Block getUtility(scene_setup::Block block) {
             scene_setup::Visibility vis_msg;
             manipulator_control::TrajectoryExecution traj_msg;
 
             vis_msg.request.block = block;
             traj_msg.request.block = block;
-
-            visibility_client.call(vis_msg);
-            execution_time_client.call(traj_msg);
-
+            
             if (visibility_client.call(vis_msg) && execution_time_client.call(traj_msg)) {
                 double visibility = vis_msg.response.visibility;
                 std::cout << "visibility of block " << block.id << " is " << visibility << "\r" << std::endl;

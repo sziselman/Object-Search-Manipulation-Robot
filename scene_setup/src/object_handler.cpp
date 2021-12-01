@@ -111,16 +111,18 @@ class ObjectHandler {
         /// \brief initialize_object_markers
         /// initializes the marker array
         void initialize_object_markers(void) {
-            // loop through the initialized dictionary and publish the markers
+        
             visualization_msgs::Marker obj;
+
+            obj.header.frame_id = "base_link";
+            obj.ns = "objects";
+            obj.type = 1;
+            obj.action = 0;
+
+            // loop through the initialized dictionary and publish the markers
             for (auto const& val : object_map) {
 
-                obj.header.frame_id = "base_link";
-                obj.ns = "objects";
                 obj.id = val.second.id;
-
-                obj.type = 1;
-                obj.action = 0;
 
                 obj.pose = val.second.pose;
                 obj.scale.x = val.second.dimensions[0];
@@ -139,6 +141,9 @@ class ObjectHandler {
             obj.pose.position.x = goal_object_position[0];
             obj.pose.position.y = goal_object_position[1];
             obj.pose.position.z = goal_object_position[2];
+            obj.scale.x = object_dimensions[0];
+            obj.scale.y = object_dimensions[1];
+            obj.scale.z = object_dimensions[2];
             obj.color.a = 1.0;
             obj.color.r = 202./255.;
             obj.color.g = 231./255.;

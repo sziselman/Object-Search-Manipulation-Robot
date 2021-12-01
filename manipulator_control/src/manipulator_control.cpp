@@ -213,6 +213,22 @@ class ManipulatorArm {
             pincer_angle.data = 0.90;
             pincer_pub.publish(pincer_angle);
 
+            pose.position.z = req.block.pose.position.z + 0.075;
+            waypoints.clear();
+            waypoints.push_back(pose);
+            fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
+
+            if (fraction == 1.0) {
+                arm_move_group.execute(traj);
+            }
+            else {
+                std::cout << "planning failed D:< \r" << std::endl;
+                return false;
+            }
+
+            pincer_angle.data = 0.0;
+            pincer_pub.publish(pincer_angle);
+
             // remove the object from the scene by updating object_handler node
             scene_setup::RemoveObjectId msg;
             msg.request.id = req.block.id;
