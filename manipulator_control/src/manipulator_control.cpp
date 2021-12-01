@@ -165,7 +165,6 @@ class ManipulatorArm {
             pincer_pub.publish(pincer_angle);
 
             // move arm back to pre grasp pose
-
             pose.position.z = req.block.pose.position.z + 0.075;
 
             waypoints.clear();
@@ -181,6 +180,7 @@ class ManipulatorArm {
                 return false;
             }
 
+            // move arm to pre release pose
             quat.setRPY(PI/2, PI/2, 0.0);
             pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.y;
@@ -193,6 +193,7 @@ class ManipulatorArm {
                 return false;
             }
 
+            // move arm to release pose
             pose.position.z = req.block.pose.position.z - 0.01;
 
             waypoints.clear();
@@ -208,9 +209,11 @@ class ManipulatorArm {
                 return false;
             }
 
+            // release the grippers
             pincer_angle.data = 0.90;
             pincer_pub.publish(pincer_angle);
 
+            // remove the object from the scene by updating object_handler node
             scene_setup::RemoveObjectId msg;
             msg.request.id = req.block.id;
 

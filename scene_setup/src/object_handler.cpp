@@ -95,9 +95,12 @@ class ObjectHandler {
             // loops through the marker array and deletes marker with req.id
             for (auto obj : marker_arr.markers) {
                 if (obj.id == req.id) {
-                    obj.action = 2;
+                    std::cout << "found marker with id " << req.id << "\r" << std::endl;
+                    obj.action = visualization_msgs::Marker::DELETEALL;
                 }
             }
+
+            std::cout << "removed object from marker array \r" << std::endl;
 
             object_marker_pub.publish(marker_arr);
             
@@ -108,8 +111,8 @@ class ObjectHandler {
         /// initializes the marker array
         void initialize_object_markers(void) {
             // loop through the initialized dictionary and publish the markers
+            visualization_msgs::Marker obj;
             for (auto const& val : object_map) {
-                visualization_msgs::Marker obj;
 
                 obj.header.frame_id = "base_link";
                 obj.ns = "objects";
@@ -130,7 +133,21 @@ class ObjectHandler {
                 marker_arr.markers.push_back(obj);
             }
 
+            // add the goal object as a marker
+            obj.id = 0;
+            obj.pose.position.x = goal_object_position[0];
+            obj.pose.position.y = goal_object_position[1];
+            obj.pose.position.z = goal_object_position[2];
+            obj.color.a = 1.0;
+            obj.color.r = 202./255.;
+            obj.color.g = 231./255.;
+            obj.color.b = 193./255.;
+
+            marker_arr.markers.push_back(obj);
+
             object_marker_pub.publish(marker_arr);
+
+            return;
         }
 
         /// \brief main_loop
@@ -143,17 +160,6 @@ class ObjectHandler {
                 for (auto const& val : object_map) {
                     block_arr.blocks.push_back(val.second);
                 }
-
-                // scene_setup::Block goal_block;
-                // goal_block.pose.position.x = goal_object_position[0];
-                // goal_block.pose.position.y = goal_object_position[1];
-                // goal_block.pose.position.z = goal_object_position[2];
-                // goal_block.orientation.w = 1.0;
-                // goal_block.dimensions = object_dimensions;
-                // block.id = 0
-                // goal = true;
-
-                // block_arr.blocks.push_back(goal_block);
                 
                 object_pub.publish(block_arr);
 
