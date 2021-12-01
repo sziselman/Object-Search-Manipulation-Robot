@@ -92,18 +92,19 @@ class ObjectHandler {
             std::cout << "erasing object of id " << req.id << "\r" << std::endl;
             object_map.erase(req.id);
 
-            // loops through the marker array and deletes marker with req.id
-            for (auto obj : marker_arr.markers) {
-                if (obj.id == req.id) {
-                    std::cout << "found marker with id " << req.id << "\r" << std::endl;
-                    obj.action = visualization_msgs::Marker::DELETEALL;
-                }
-            }
+            visualization_msgs::Marker delete_all_marker;
+            delete_all_marker.header.frame_id = "base_link";
+            delete_all_marker.action = 3;
+            marker_arr.markers.clear();
 
-            std::cout << "removed object from marker array \r" << std::endl;
-
+            marker_arr.markers.push_back(delete_all_marker);
+            
             object_marker_pub.publish(marker_arr);
             
+            marker_arr.markers.clear();
+
+            initialize_object_markers();
+
             return true;
         }
 
