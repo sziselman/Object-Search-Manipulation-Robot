@@ -31,6 +31,7 @@ class ObjectScene {
         scene::Scene search_scene;
 
     public:
+        /// \brief constructor for ObjectScene object
         ObjectScene() {
             load_parameters();
 
@@ -41,8 +42,7 @@ class ObjectScene {
             marker_pub = n.advertise<visualization_msgs::MarkerArray>("scene_markers", 10, true);
         }
 
-        /// \brief load_parameters
-        /// function that loads parameters from the parameter server
+        /// \brief function that loads parameters from the parameter server
         void load_parameters(void) {
             n.getParam("frequency", frequency);
             n.getParam("front_plane_dimensions", front_plane_dimensions);
@@ -52,6 +52,7 @@ class ObjectScene {
             return;
         }
 
+        /// \brief create markers in rviz that represent the geometry of the scene
         void load_scene_markers(void) {
             visualization_msgs::MarkerArray array;
 
@@ -96,7 +97,7 @@ class ObjectScene {
             array.markers.push_back(marker);
 
             // rear plane
-            std::vector<double> rear_plane_dims = search_scene.getRearPlaneDimensions();
+            std::vector<double> rear_plane_dims = search_scene.get_rear_plane_dimensions();
             std::vector<geometry_msgs::Point> rear_plane;
             point.x = -rear_plane_dims[0]/2;
             point.y = rear_plane_distance;
@@ -136,13 +137,18 @@ class ObjectScene {
             return;
         }
 
+        /// \brief function for /get_visibility service, calculates the volume of occluded volume due to an object
+        /// \param req - (scene_setup/Visibility/Request) contains a block that is occluding volume in the scene
+        /// \param res - (scene_setup/Visibility/Response) contains a float that represents the volume of occluded space due to the object
+        /// \returns the boolean value true (if the service is successful) or false (if the service fails)
         bool visibility(scene_setup::Visibility::Request& req,
                         scene_setup::Visibility::Response& res) {
 
-            res.visibility = search_scene.getObjectVisibility(req.block);
+            res.visibility = search_scene.get_object_visibility(req.block);
             return true;
         }
 
+        /// \brief the main loop to be executed
         void main_loop(void) {
 
             ros::Rate loop_rate(frequency);

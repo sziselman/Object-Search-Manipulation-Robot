@@ -41,7 +41,7 @@ class TestGreedy {
             GreedySearch greedy(blocks);
 
             std::vector<scene_setup::Block> arrangement;
-            arrangement = greedy.getArrangement();
+            arrangement = greedy.get_arrangement();
 
             std::cout << "arangmenet : \r" << std::endl;
             

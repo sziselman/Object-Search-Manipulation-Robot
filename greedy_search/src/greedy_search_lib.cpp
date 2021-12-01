@@ -18,7 +18,7 @@ namespace greedy_search
 
     GreedySearch::GreedySearch(std::vector<scene_setup::Block> blocks) : objects(blocks) {}
 
-    std::vector<scene_setup::Block> GreedySearch::getArrangement(void) {
+    std::vector<scene_setup::Block> GreedySearch::get_arrangement(void) {
 
         // set that orders blocks based on utliity value
         std::vector<BlockStruct> ordered_blocks_vec;

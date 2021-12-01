@@ -30,7 +30,6 @@ class ObjectHandler {
         std::vector<std::vector<double>> object_positions;
         int frequency;
 
-        // set that takes care of the objects within the scene
         // maps the block id to the block
         std::map<int, scene_setup::Block> object_map = {};
 
@@ -38,6 +37,7 @@ class ObjectHandler {
         visualization_msgs::MarkerArray marker_arr;
 
     public:
+        /// \brief the constructor for the ObjectHandler object
         ObjectHandler() {
             load_parameters();
 
@@ -52,7 +52,7 @@ class ObjectHandler {
             initialize_target_marker();
         }
 
-        /// \brief load_parameters : loading the parameters from server
+        /// \brief loads parameters from the parameter server
         void load_parameters(void) {
             n.getParam("object_dimensions", object_dimensions);
             n.getParam("object1_position", object1_position);
@@ -66,8 +66,7 @@ class ObjectHandler {
             n.getParam("goal_object_position", goal_object_position);
         }
 
-        /// \brief initialize_dictionary
-        /// reads block locations from parameter server, inserts them into a dictionary
+        /// \brief initializes the dictionary that keeps track of which objects are visible within the scene
         void initialize_dictionary(void) {
             int id = 1;
             // add the objects within the scene
@@ -90,8 +89,10 @@ class ObjectHandler {
             }
         }
 
-        /// \brief remove_object_id
-        /// removes the object with request.id from the dictionary
+        /// \brief removes the object with user-specified id from the scene
+        /// \param req - (scene_setup/RemoveObjectId/Request) contains an integer that represents the id of the object to be removed
+        /// \param res - (scene_setup/RemoveObjectId/Response) none
+        /// \return the boolean value true (if service is success) or false (if service fails)
         bool remove_object_id(scene_setup::RemoveObjectId::Request &req,
                               scene_setup::RemoveObjectId::Response &res) {
             
@@ -114,6 +115,7 @@ class ObjectHandler {
             return true;
         }
 
+        /// \brief publishes the marker that represents the target object
         void initialize_target_marker(void) {
 
             visualization_msgs::Marker target;
@@ -138,8 +140,7 @@ class ObjectHandler {
             return;
         }
 
-        /// \brief initialize_object_markers
-        /// initializes the marker array
+        /// \brief publishes the markers that represent the objects within the scene (not including the target object)
         void initialize_object_markers(void) {
         
             visualization_msgs::Marker obj;
@@ -171,8 +172,7 @@ class ObjectHandler {
             return;
         }
 
-        /// \brief main_loop
-        /// the main loop that gets executed after each spin
+        /// \brief the main loop to be executed
         void main_loop(void) {
             ros::Rate loop_rate(100);
 

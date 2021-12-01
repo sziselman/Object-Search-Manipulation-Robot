@@ -18,7 +18,7 @@ namespace scene
 
         ObjectFacePoints(scene_setup::Block block);
 
-        double getShadowArea(double y_shadow);
+        double get_shadow_area(double y_shadow);
     };
 
     class Scene
@@ -30,7 +30,7 @@ namespace scene
             double rear_dist;                           // the distance between the "camera" and the rear plane
             double volume_scene;                        // the volume of the scene
 
-            void getSceneGeometry(void);
+            void get_scene_geometry(void);
 
         public:
             /// \brief constructor for Scene object
@@ -45,9 +45,9 @@ namespace scene
             /// \brief inserts a rectangular object into the scene
             /// \param block : stores the position, dimensions, id and utility
             /// \returns the volume of the space that is blocked by the object
-            double getObjectVisibility(scene_setup::Block block);
+            double get_object_visibility(scene_setup::Block block);
 
-            std::vector<double> getRearPlaneDimensions(void);
+            std::vector<double> get_rear_plane_dimensions(void);
     };
 }
 #endif

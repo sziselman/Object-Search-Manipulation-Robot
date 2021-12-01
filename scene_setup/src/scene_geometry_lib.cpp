@@ -2,7 +2,7 @@
 
 namespace scene
 {
-    void Scene::getSceneGeometry(void)
+    void Scene::get_scene_geometry(void)
     {
         // calculates the dimensions of the rear plane
         rear_plane_dims.resize(2);
@@ -90,7 +90,7 @@ namespace scene
         foot_print_points.push_back(front_left);
     }
 
-    double ObjectFacePoints::getShadowArea(double y_shadow) {
+    double ObjectFacePoints::get_shadow_area(double y_shadow) {
         // loop through the points and find the x and z values of the shadow
         std::vector<double> x_vals;
         std::vector<double> z_vals;
@@ -125,10 +125,10 @@ namespace scene
     Scene::Scene(std::vector<double> dims_f, double dist_f, double dist_r) : front_plane_dims(dims_f), 
                                                                              front_dist(dist_f),
                                                                              rear_dist(dist_r) {
-        getSceneGeometry();
+        get_scene_geometry();
     }
 
-    double Scene::getObjectVisibility(scene_setup::Block block)
+    double Scene::get_object_visibility(scene_setup::Block block)
     {
         std::cout << "getting occluded volume of block " << block.id << "+++++++++++++++++++\r" << std::endl;
 
@@ -156,12 +156,12 @@ namespace scene
         ObjectFacePoints front_face(block);
 
         // get area of the shadow
-        double shadow_area = front_face.getShadowArea(rear_dist);
+        double shadow_area = front_face.get_shadow_area(rear_dist);
 
         return ((height / 3) * (object_front_area + shadow_area + sqrt(object_front_area * shadow_area))) - object_volume;
     }
 
-    std::vector<double> Scene::getRearPlaneDimensions(void) {
+    std::vector<double> Scene::get_rear_plane_dimensions(void) {
         return rear_plane_dims;
     }
 }

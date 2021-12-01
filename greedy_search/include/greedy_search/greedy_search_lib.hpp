@@ -49,7 +49,7 @@ namespace greedy_search
 
             /// \brief gets the optimal arrangement using greedy search
             /// \return a list of blocks in order of arrangement
-            std::vector<scene_setup::Block> getArrangement(void);
+            std::vector<scene_setup::Block> get_arrangement(void);
     };
 }
 

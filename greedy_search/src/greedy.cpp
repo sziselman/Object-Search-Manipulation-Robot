@@ -178,7 +178,7 @@ class Greedy {
 
             greedy_search::GreedySearch greedy(blocks);
             std::vector<scene_setup::Block> arrangement;
-            arrangement = greedy.getArrangement();
+            arrangement = greedy.get_arrangement();
 
             scene_setup::BlockArray arr;
             arr.blocks = arrangement;

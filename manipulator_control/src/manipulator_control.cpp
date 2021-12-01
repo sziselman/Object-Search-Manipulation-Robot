@@ -50,8 +50,6 @@ class ManipulatorArm {
 
         ros::ServiceClient remove_object_id_client;
 
-        ros::Subscriber object_sub;
-
         // move it variables
         moveit::planning_interface::MoveGroupInterface arm_move_group;
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
@@ -63,22 +61,26 @@ class ManipulatorArm {
         visualization_msgs::MarkerArray object_arr;
 
     public:
+        /// \brief constructor for ManipulatorArm object
+        /// \param planning_group - the string that contains the name of the arm's move group
+        /// \param frame - the string that is the name of the base_link frame
         ManipulatorArm(std::string planning_group, std::string frame) : arm_move_group(planning_group),
                                                                         visual_tools(frame) {
 
-            // arm_model_group = arm_move_group.getCurrentState()->getJointModelGroup(planning_group);
             pincer_pub = n.advertise<std_msgs::Float64>("/hdt_arm/pincer_joint_position_controller/command", 10);
 
-            execution_time_service = n.advertiseService("get_execution_time", &ManipulatorArm::executionTime, this);
-            remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::removeObject, this);
+            execution_time_service = n.advertiseService("get_execution_time", &ManipulatorArm::execution_time, this);
+            remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::remove_object, this);
 
             remove_object_id_client = n.serviceClient<scene_setup::RemoveObjectId>("remove_object_id");
-
-            object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
         }
 
-        bool executionTime(manipulator_control::TrajectoryExecution::Request &req,
-                           manipulator_control::TrajectoryExecution::Response &res) {
+        /// \brief function for /get_execution_time service, calculates the time to execute a trajectory to move a user-specified block
+        /// \param req - (manipulator_control/TrajectoryExecution/Request) contains a block that is to be removed from the scene
+        /// \param res - (manipulator_control/TrajectoryExecution/Response) contains a float (the duration of the trajectory) and a boolean (indicates if the trajectory was successful or not)
+        /// \return the boolean value true (if service is successful) or false (if the service fails)
+        bool execution_time(manipulator_control::TrajectoryExecution::Request &req,
+                            manipulator_control::TrajectoryExecution::Response &res) {
             
             geometry_msgs::Pose grab_pose;
             grab_pose.position.x = req.block.pose.position.x;
@@ -115,8 +117,12 @@ class ManipulatorArm {
             return true;
         }
 
-        bool removeObject(manipulator_control::RemoveObject::Request &req,
-                          manipulator_control::RemoveObject::Response &res) {
+        /// \brief function for /remove_object service, commands the adroit manipulator arm to remove an object from the scene
+        /// \param req - (manipulator_control/RemoveObject/Request) contains a block that is to be removed from the scene
+        /// \param res - (manipulator_control/RemoveObject/Response) contains a boolean (indicates if the removal of the object was successful or not)
+        /// \return the boolean value true (if service is successful) or false (if the service fails)
+        bool remove_object(manipulator_control::RemoveObject::Request &req,
+                           manipulator_control::RemoveObject::Response &res) {
             
             // move the arm to the pre-grasp pose
             geometry_msgs::Pose pose;
@@ -237,12 +243,8 @@ class ManipulatorArm {
 
             return true;
         }
-        
-        void object_callback(const scene_setup::BlockArray msg) {
 
-            return;
-        }
-
+        /// \brief the main loop to be executed
         void main_loop(void) {
             ros::Rate loop_rate(100);
             ros::AsyncSpinner spinner(1);
