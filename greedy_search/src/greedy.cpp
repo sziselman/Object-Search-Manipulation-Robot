@@ -13,6 +13,7 @@
 #include <geometry_msgs/Pose.h>
 
 #include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <tf2/LinearMath/Quaternion.h>
 
@@ -25,6 +26,8 @@ class Greedy {
     private:
         // ros objects
         ros::NodeHandle n;
+
+        ros::Publisher object_marker_pub;
 
         ros::ServiceClient visibility_client;
         ros::ServiceClient execution_time_client;
@@ -43,6 +46,8 @@ class Greedy {
     public:
         Greedy() {
             load_parameters();
+
+            object_marker_pub = n.advertise<visualization_msgs::MarkerArray>("object_markers", 10, true);
 
             visibility_client = n.serviceClient<scene_setup::Visibility>("get_visibility");
             execution_time_client = n.serviceClient<manipulator_control::TrajectoryExecution>("get_execution_time");
@@ -74,16 +79,16 @@ class Greedy {
             return;
         }
 
-        /// \brief getUtility
+        /// \brief update_utility
         /// \param block : the block to calculate the utility of
         /// \return the block with updated utility
-        scene_setup::Block getUtility(scene_setup::Block block) {
+        scene_setup::Block update_utility(scene_setup::Block block) {
             scene_setup::Visibility vis_msg;
             manipulator_control::TrajectoryExecution traj_msg;
 
             vis_msg.request.block = block;
             traj_msg.request.block = block;
-            
+
             if (visibility_client.call(vis_msg) && execution_time_client.call(traj_msg)) {
                 double visibility = vis_msg.response.visibility;
                 std::cout << "visibility of block " << block.id << " is " << visibility << "\r" << std::endl;
@@ -104,6 +109,54 @@ class Greedy {
             return block;
         }
 
+        /// \brief update_object_markers
+        /// updates the object markers in rviz, the object with the highest utility will be highlighted in yellow
+        void update_object_markers(scene_setup::BlockArray array) {
+            visualization_msgs::MarkerArray marker_arr;
+            visualization_msgs::Marker obj;
+
+            obj.header.frame_id = "base_link";
+            obj.action = 3;
+            marker_arr.markers.push_back(obj);
+
+            object_marker_pub.publish(marker_arr);
+
+            marker_arr.markers.clear();
+            
+            // loop through all blocks
+            for (int i = 0; i < array.blocks.size(); i++) {
+
+                scene_setup::Block block = array.blocks[i];
+
+                obj.ns = "objects";
+                obj.type = 1;
+                obj.action = 0;
+                obj.id = block.id;
+                obj.pose = block.pose;
+                obj.scale.x = block.dimensions[0];
+                obj.scale.y = block.dimensions[1];
+                obj.scale.z = block.dimensions[2];
+                obj.color.a = 1.0;
+
+                if (i == 0) {
+                    obj.color.r = 253./255.;
+                    obj.color.g = 253./255.;
+                    obj.color.b = 150./255.;
+                }
+                else {
+                    obj.color.r = 250./255.;
+                    obj.color.g = 218./255.;
+                    obj.color.b = 221./255.;
+                }
+
+                marker_arr.markers.push_back(obj);
+            }
+
+            object_marker_pub.publish(marker_arr);
+
+            return;
+        }
+
         /// \brief callback function for /start_service topic 
         /// gets the utility of each object and sorts into arrangment
         bool start_search(greedy_search::StartSearch::Request &req,
@@ -116,7 +169,7 @@ class Greedy {
             // calculate the utility for each block
             for (auto block : blocks) {
                 // calculate the utility of the block
-                updated_blocks.push_back(getUtility(block));
+                updated_blocks.push_back(update_utility(block));
             }
 
             blocks = updated_blocks;
@@ -129,6 +182,8 @@ class Greedy {
 
             scene_setup::BlockArray arr;
             arr.blocks = arrangement;
+
+            update_object_markers(arr);
 
             res.arrangement = arr;
 
