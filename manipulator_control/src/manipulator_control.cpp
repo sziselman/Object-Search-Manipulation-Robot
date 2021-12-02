@@ -50,6 +50,8 @@ class ManipulatorArm {
 
         ros::ServiceClient remove_object_id_client;
 
+        ros::Subscriber object_sub;
+
         // move it variables
         moveit::planning_interface::MoveGroupInterface arm_move_group;
         moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
@@ -59,6 +61,8 @@ class ManipulatorArm {
 
         // variables
         visualization_msgs::MarkerArray object_arr;
+        std::vector<scene_setup::Block> blocks;
+        std::vector<std::string> object_ids;
 
     public:
         /// \brief constructor for ManipulatorArm object
@@ -73,6 +77,14 @@ class ManipulatorArm {
             remove_object_service = n.advertiseService("remove_object", &ManipulatorArm::remove_object, this);
 
             remove_object_id_client = n.serviceClient<scene_setup::RemoveObjectId>("remove_object_id");
+
+            object_sub = n.subscribe("objects", 10, &ManipulatorArm::object_callback, this);
+        }
+
+        /// \brief callback function for subscriber to the /objects topic to read in the objects that are seen
+        void object_callback(const scene_setup::BlockArray msg) {
+            blocks = msg.blocks;
+            return;
         }
 
         /// \brief function for /get_execution_time service, calculates the time to execute a trajectory to move a user-specified block
@@ -117,6 +129,43 @@ class ManipulatorArm {
             return true;
         }
 
+        /// \brief function that adds all other objects in the scene (except the one being removed) as collision objects
+        /// \param id - the id of the block being removed
+        void add_collision_objects(int id) {
+            
+            std::vector<moveit_msgs::CollisionObject> collision_objects;
+            object_ids.clear();
+
+            // loop through the blocks
+            for (auto block : blocks) {
+
+                // if the id is not the one being removed, add it as a collision object
+                if (block.id != id) {
+                    moveit_msgs::CollisionObject obj;
+                    obj.header.frame_id = arm_move_group.getPlanningFrame();
+                    obj.id = std::to_string(block.id);
+                    object_ids.push_back(obj.id);
+
+                    shape_msgs::SolidPrimitive prim;
+                    prim.type = prim.BOX;
+                    prim.dimensions.resize(3);
+                    for (int i = 0; i < block.dimensions.size(); i++) {
+                        prim.dimensions[i] = block.dimensions[i];
+                    }
+
+                    obj.primitives.push_back(prim);
+                    obj.primitive_poses.push_back(block.pose);
+                    obj.operation = obj.ADD;
+
+                    collision_objects.push_back(obj);
+                }
+            }
+
+            planning_scene_interface.addCollisionObjects(collision_objects);
+
+            return;
+        }
+
         /// \brief function for /remove_object service, commands the adroit manipulator arm to remove an object from the scene
         /// \param req - (manipulator_control/RemoveObject/Request) contains a block that is to be removed from the scene
         /// \param res - (manipulator_control/RemoveObject/Response) contains a boolean (indicates if the removal of the object was successful or not)
@@ -124,6 +173,9 @@ class ManipulatorArm {
         bool remove_object(manipulator_control::RemoveObject::Request &req,
                            manipulator_control::RemoveObject::Response &res) {
             
+            // add collision objects for all objects except the one being removed
+            add_collision_objects(req.block.id);
+
             // move the arm to the pre-grasp pose
             geometry_msgs::Pose pose;
             tf2::Quaternion quat;
@@ -241,6 +293,9 @@ class ManipulatorArm {
 
             remove_object_id_client.call(msg);
 
+            // remove all the collision objects from the world
+            planning_scene_interface.removeCollisionObjects(object_ids);
+            
             return true;
         }
 

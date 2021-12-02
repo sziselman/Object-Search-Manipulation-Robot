@@ -58,28 +58,19 @@ class Greedy {
             object_sub = n.subscribe("objects", 10, &Greedy::object_callback, this);
         }
 
-        /// \brief load_parameters 
-        /// loads the parameters from the parameter server
+        /// \brief loads the parameters from the parameter server
         void load_parameters(void) {
             n.getParam("frequency", frequency);
             return;
         }
         
-        /// \brief object_callback
-        /// subscribes to the /objects topic to read in the objects that are seen
+        /// \brief callback function for subscriber to the /objects topic to read in the objects that are seen
         void object_callback(const scene_setup::BlockArray msg) {
-            std::vector<scene_setup::Block> incoming_blocks;
-
-            for (auto block : msg.blocks) {
-                incoming_blocks.push_back(block);
-            }
-
-            blocks = incoming_blocks;
-
+            blocks = msg.blocks;
             return;
         }
 
-        /// \brief update_utility
+        /// \brief updates the utility of a block
         /// \param block : the block to calculate the utility of
         /// \return the block with updated utility
         scene_setup::Block update_utility(scene_setup::Block block) {
@@ -109,8 +100,7 @@ class Greedy {
             return block;
         }
 
-        /// \brief update_object_markers
-        /// updates the object markers in rviz, the object with the highest utility will be highlighted in yellow
+        /// \brief updates the object markers in rviz, the object with the highest utility will be highlighted in yellow
         void update_object_markers(scene_setup::BlockArray array) {
             visualization_msgs::MarkerArray marker_arr;
             visualization_msgs::Marker obj;
