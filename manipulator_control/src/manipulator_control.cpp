@@ -10,6 +10,8 @@
 
 #include <moveit_msgs/AttachedCollisionObject.h>
 #include <moveit_msgs/CollisionObject.h>
+#include <moveit_msgs/PositionConstraint.h>
+#include <moveit_msgs/OrientationConstraint.h>
 
 #include <shape_msgs/SolidPrimitive.h>
 
@@ -243,6 +245,20 @@ class ManipulatorArm {
             pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.y;
             pose.position.y = req.block.pose.position.x;
+
+            // // add orientation constraint
+            // moveit_msgs::OrientationConstraint ocm;
+            // ocm.header.frame_id = "base_link";
+            // ocm.link_name = "endpoint_link";
+            // ocm.orientation = tf2::toMsg(quat);
+
+
+            // // add positional constraint
+            // moveit_msgs::PositionConstraint pcm;
+            // pcm.header.frame_id = "base_link";
+            // pcm.link_name = "endpoint_link";
+            // pcm.target_point_offset[2] = 0.0;
+
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
@@ -295,7 +311,7 @@ class ManipulatorArm {
 
             // remove all the collision objects from the world
             planning_scene_interface.removeCollisionObjects(object_ids);
-            
+
             return true;
         }
 
