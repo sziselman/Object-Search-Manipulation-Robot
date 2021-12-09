@@ -31,6 +31,7 @@ class ObjectHandler {
         std::vector<double> object1_position;
         std::vector<double> object2_position;
         std::vector<double> object3_position;
+        std::vector<double> object4_position;
 
         std::vector<double> goal_object_position;
         std::vector<std::vector<double>> object_positions;
@@ -72,6 +73,8 @@ class ObjectHandler {
             object_positions.push_back(object2_position);
             n.getParam("object3_position", object3_position);
             object_positions.push_back(object3_position);
+            n.getParam("object4_position", object4_position);
+            object_positions.push_back(object4_position);
 
             n.getParam("frequency", frequency);
 
@@ -82,6 +85,8 @@ class ObjectHandler {
         void initialize_dictionary(void) {
             int id = 1;
 
+            std::vector<int> occludes_vec, occluded_by_vec;
+
             // large object (1)
             scene_setup::Block block;
             block.pose.position.x = object1_position[0];
@@ -91,6 +96,9 @@ class ObjectHandler {
             block.dimensions = lar_obj_dims;
             block.id = 1;
             block.goal = false;
+            
+            occludes_vec.push_back(4);
+            block.occludes = occludes_vec;
 
             object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
 
@@ -101,6 +109,9 @@ class ObjectHandler {
             block.dimensions = med_obj_dims;
             block.id = 2;
 
+            occludes_vec.clear();
+            block.occludes = occludes_vec;
+
             object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
 
             // medium object (3)
@@ -109,6 +120,20 @@ class ObjectHandler {
             block.pose.position.z = object3_position[2];
             block.id = 3;
             
+            object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+
+            // medium object (4)
+            block.pose.position.x = object4_position[0];
+            block.pose.position.y = object4_position[1];
+            block.pose.position.z = object4_position[2];
+            block.id = 4;
+
+            occluded_by_vec.push_back(1);
+            block.occluded_by = occluded_by_vec;
+
+            occludes_vec.clear();
+            occluded_by_vec.clear();
+
             object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
 
             return;

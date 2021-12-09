@@ -101,6 +101,7 @@ class Greedy {
         }
 
         /// \brief updates the object markers in rviz, the object with the highest utility will be highlighted in yellow
+        /// \param array - the BlockArray that stores each blocks visibile in the scene
         void update_object_markers(scene_setup::BlockArray array) {
             visualization_msgs::MarkerArray marker_arr;
             visualization_msgs::Marker obj;
@@ -149,6 +150,9 @@ class Greedy {
 
         /// \brief callback function for /start_service topic 
         /// gets the utility of each object and sorts into arrangment
+        /// \param req - 
+        /// \param res - 
+        /// \return booolean true (if service is successful) or false (if service failed)
         bool start_search(greedy_search::StartSearch::Request &req,
                           greedy_search::StartSearch::Response &res) {
             
@@ -210,7 +214,7 @@ class Greedy {
 };
 
 int main(int argc, char* argv[]) {
-    ros::init(argc, argv, "fake_search");
+    ros::init(argc, argv, "greedy");
     Greedy node;
     node.main_loop();
     return 0;
