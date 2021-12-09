@@ -1,5 +1,6 @@
 <launch>
     <arg name="sim" default="true" doc="argument used to determine if running in simulation"/>
+    
     <include file="$(find manipulator_control)/launch/hdt_arm_bringup_1.launch">
         <arg name="simulation" value="$(arg sim)"/>
     </include>

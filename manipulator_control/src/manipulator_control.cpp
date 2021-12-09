@@ -178,6 +178,10 @@ class ManipulatorArm {
             // add collision objects for all objects except the one being removed
             add_collision_objects(req.block.id);
 
+            std_msgs::Float64 pincer_angle;
+            pincer_angle.data = 0.90;
+            pincer_pub.publish(pincer_angle);
+
             // move the arm to the pre-grasp pose
             geometry_msgs::Pose pose;
             tf2::Quaternion quat;
@@ -185,7 +189,7 @@ class ManipulatorArm {
             pose.orientation = tf2::toMsg(quat);
             pose.position.x = req.block.pose.position.x;
             pose.position.y = req.block.pose.position.y;
-            pose.position.z = req.block.pose.position.z + 0.075;
+            pose.position.z = req.block.pose.position.z + 0.070;
 
             arm_move_group.setPoseTarget(pose);
             moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -196,12 +200,8 @@ class ManipulatorArm {
                 return false;
             }
 
-            std_msgs::Float64 pincer_angle;
-            pincer_angle.data = 0.90;
-            pincer_pub.publish(pincer_angle);
-
             // move the arm to the grasp pose
-            pose.position.z = req.block.pose.position.z - 0.01;
+            pose.position.z = req.block.pose.position.z + 0.025;
 
             std::vector<geometry_msgs::Pose> waypoints;
             waypoints.push_back(pose);
@@ -225,7 +225,7 @@ class ManipulatorArm {
             pincer_pub.publish(pincer_angle);
 
             // move arm back to pre grasp pose
-            pose.position.z = req.block.pose.position.z + 0.075;
+            pose.position.z = req.block.pose.position.z + 0.070;
 
             waypoints.clear();
             waypoints.push_back(pose);
@@ -243,8 +243,8 @@ class ManipulatorArm {
             // move arm to pre release pose
             quat.setRPY(PI/2, PI/2, 0.0);
             pose.orientation = tf2::toMsg(quat);
-            pose.position.x = req.block.pose.position.y;
-            pose.position.y = req.block.pose.position.x;
+            pose.position.x = 0.3;
+            pose.position.y = 0.0;
 
             // // add orientation constraint
             // moveit_msgs::OrientationConstraint ocm;
@@ -267,27 +267,11 @@ class ManipulatorArm {
                 return false;
             }
 
-            // move arm to release pose
-            pose.position.z = req.block.pose.position.z - 0.01;
-
-            waypoints.clear();
-            waypoints.push_back(pose);
-
-            fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
-
-            if (fraction == 1.0) {
-                arm_move_group.execute(traj);
-            }
-            else {
-                std::cout << "planning failed D: \r" << std::endl;
-                return false;
-            }
-
             // release the grippers
             pincer_angle.data = 0.90;
             pincer_pub.publish(pincer_angle);
 
-            pose.position.z = req.block.pose.position.z + 0.075;
+            pose.position.z = req.block.pose.position.z + 0.070;
             waypoints.clear();
             waypoints.push_back(pose);
             fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);

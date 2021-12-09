@@ -22,10 +22,16 @@ class ObjectHandler {
         ros::ServiceServer remove_object_id_service;
 
         // parameters
+        std::vector<double> lar_obj_dims;
+        std::vector<double> med_obj_dims;
+        std::vector<double> sma_obj_dims;
+
         std::vector<double> object_dimensions;
+
         std::vector<double> object1_position;
         std::vector<double> object2_position;
         std::vector<double> object3_position;
+
         std::vector<double> goal_object_position;
         std::vector<std::vector<double>> object_positions;
         int frequency;
@@ -55,12 +61,18 @@ class ObjectHandler {
         /// \brief loads parameters from the parameter server
         void load_parameters(void) {
             n.getParam("object_dimensions", object_dimensions);
+
+            n.getParam("lar_block_dimensions", lar_obj_dims);
+            n.getParam("med_block_dimensions", med_obj_dims);
+            n.getParam("sma_block_dimensions", sma_obj_dims);
+
             n.getParam("object1_position", object1_position);
             object_positions.push_back(object1_position);
             n.getParam("object2_position", object2_position);
             object_positions.push_back(object2_position);
             n.getParam("object3_position", object3_position);
             object_positions.push_back(object3_position);
+
             n.getParam("frequency", frequency);
 
             n.getParam("goal_object_position", goal_object_position);
@@ -69,24 +81,37 @@ class ObjectHandler {
         /// \brief initializes the dictionary that keeps track of which objects are visible within the scene
         void initialize_dictionary(void) {
             int id = 1;
-            // add the objects within the scene
-            for (auto pos : object_positions) {
-                // initialize block object
-                scene_setup::Block block;
-                block.pose.position.x = pos[0];
-                block.pose.position.y = pos[1];
-                block.pose.position.z = pos[2];
-                block.pose.orientation.w = 1.0;
-                block.dimensions = object_dimensions;
-                block.id = id;
-                block.goal = false;
-                id++;
-                
-                // insert block into the map
-                if (object_map.find(block.id) == object_map.end()) {
-                    object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
-                }
-            }
+
+            // large object (1)
+            scene_setup::Block block;
+            block.pose.position.x = object1_position[0];
+            block.pose.position.y = object1_position[1];
+            block.pose.position.z = object1_position[2];
+            block.pose.orientation.w = 1.0;
+            block.dimensions = lar_obj_dims;
+            block.id = 1;
+            block.goal = false;
+
+            object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+
+            // medium object (2)
+            block.pose.position.x = object2_position[0];
+            block.pose.position.y = object2_position[1];
+            block.pose.position.z = object2_position[2];
+            block.dimensions = med_obj_dims;
+            block.id = 2;
+
+            object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+
+            // medium object (3)
+            block.pose.position.x = object3_position[0];
+            block.pose.position.y = object3_position[1];
+            block.pose.position.z = object3_position[2];
+            block.id = 3;
+            
+            object_map.insert(std::pair<int, scene_setup::Block>(block.id, block));
+
+            return;
         }
 
         /// \brief removes the object with user-specified id from the scene
@@ -127,9 +152,9 @@ class ObjectHandler {
             target.pose.position.x = goal_object_position[0];
             target.pose.position.y = goal_object_position[1];
             target.pose.position.z = goal_object_position[2];
-            target.scale.x = object_dimensions[0];
-            target.scale.y = object_dimensions[1];
-            target.scale.z = object_dimensions[2];
+            target.scale.x = sma_obj_dims[0];
+            target.scale.y = sma_obj_dims[1];
+            target.scale.z = sma_obj_dims[2];
             target.color.a = 1.0;
             target.color.r = 202./255.;
             target.color.g = 231./255.;

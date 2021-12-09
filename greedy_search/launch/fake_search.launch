@@ -1,4 +1,6 @@
 <launch>
+    <arg name="sim" default="true"/>
+
     <rosparam command="load" file="$(find scene_setup)/config/scene_params.yaml"/>
 
     <node name="object_handler" pkg="scene_setup" type="object_handler" output="screen"/>
@@ -6,7 +8,7 @@
     <node name="scene_setup" pkg="scene_setup" type="scene_setup" output="screen"/>
     
     <include file="$(find manipulator_control)/launch/manipulator.launch">
-        <arg name="sim" value="true"/>
+        <arg name="sim" value="$(arg sim)"/>
     </include>
 
     <node name="greedy" pkg="greedy_search" type="greedy" output="screen"/>

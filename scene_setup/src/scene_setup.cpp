@@ -22,6 +22,8 @@ class ObjectScene {
         // parameters
         std::vector<double> object_dimensions;
         std::vector<double> front_plane_dimensions;
+        std::vector<double> focal_point;
+
         double front_plane_distance;
         double rear_plane_distance;
 
@@ -49,6 +51,7 @@ class ObjectScene {
             n.getParam("front_plane_distance", front_plane_distance);
             n.getParam("rear_plane_distance", rear_plane_distance);
             n.getParam("object_dimensions", object_dimensions);
+            n.getParam("focal_point", focal_point);
             return;
         }
 
@@ -63,7 +66,7 @@ class ObjectScene {
             geometry_msgs::Point point;
             point.x = -front_plane_dimensions[0]/2;
             point.y = front_plane_distance;
-            point.z = 0.0;
+            point.z = focal_point[2];
 
             front_plane.push_back(point);
 
@@ -101,7 +104,7 @@ class ObjectScene {
             std::vector<geometry_msgs::Point> rear_plane;
             point.x = -rear_plane_dims[0]/2;
             point.y = rear_plane_distance;
-            point.z = 0.0;
+            point.z = focal_point[2];
 
             rear_plane.push_back(point);
 
