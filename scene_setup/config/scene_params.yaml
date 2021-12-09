@@ -12,8 +12,8 @@ object1_position: [0.0, 0.3, -0.3825]
 object2_position: [-0.1, 0.3, -0.3825]
 object3_position: [0.15, 0.3, -0.3825]
 
-lar_block_dimensions: [0.075, 0.053, 0.125]
-med_block_dimensions: [0.075, 0.053, 0.125]
+lar_block_dimensions: [0.085, 0.087, 0.155]
+med_block_dimensions: [0.09, 0.05, 0.140]
 sma_block_dimensions: [0.045, 0.045, 0.045]
 
 

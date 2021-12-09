@@ -201,7 +201,7 @@ class ManipulatorArm {
             }
 
             // move the arm to the grasp pose
-            pose.position.z = req.block.pose.position.z + 0.025;
+            pose.position.z = req.block.pose.position.z + 0.02;
 
             std::vector<geometry_msgs::Pose> waypoints;
             waypoints.push_back(pose);
@@ -246,19 +246,6 @@ class ManipulatorArm {
             pose.position.x = 0.3;
             pose.position.y = 0.0;
 
-            // // add orientation constraint
-            // moveit_msgs::OrientationConstraint ocm;
-            // ocm.header.frame_id = "base_link";
-            // ocm.link_name = "endpoint_link";
-            // ocm.orientation = tf2::toMsg(quat);
-
-
-            // // add positional constraint
-            // moveit_msgs::PositionConstraint pcm;
-            // pcm.header.frame_id = "base_link";
-            // pcm.link_name = "endpoint_link";
-            // pcm.target_point_offset[2] = 0.0;
-
             arm_move_group.setPoseTarget(pose);
             if (arm_move_group.plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS) {
                 arm_move_group.move();
@@ -269,22 +256,6 @@ class ManipulatorArm {
 
             // release the grippers
             pincer_angle.data = 0.90;
-            pincer_pub.publish(pincer_angle);
-
-            pose.position.z = req.block.pose.position.z + 0.070;
-            waypoints.clear();
-            waypoints.push_back(pose);
-            fraction = arm_move_group.computeCartesianPath(waypoints, eef_step, jump_thresh, traj);
-
-            if (fraction == 1.0) {
-                arm_move_group.execute(traj);
-            }
-            else {
-                std::cout << "planning failed D:< \r" << std::endl;
-                return false;
-            }
-
-            pincer_angle.data = 0.0;
             pincer_pub.publish(pincer_angle);
 
             // remove the object from the scene by updating object_handler node
