@@ -66,7 +66,19 @@ class Greedy {
         
         /// \brief callback function for subscriber to the /objects topic to read in the objects that are seen
         void object_callback(const scene_setup::BlockArray msg) {
-            blocks = msg.blocks;
+            blocks.clear();
+            
+            for (auto b : msg.blocks) {
+                // if a block is occluded by anything, then don't add it to visible blocks
+                if (b.occluded_by.size() > 0) {
+                    continue;
+                }
+                else {
+                    blocks.push_back(b);
+                }
+            
+            }
+            // blocks = msg.blocks;
             return;
         }
 

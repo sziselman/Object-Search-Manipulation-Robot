@@ -146,6 +146,14 @@ class ObjectHandler {
         bool remove_object_id(scene_setup::RemoveObjectId::Request &req,
                               scene_setup::RemoveObjectId::Response &res) {
             
+            // iterate through every id that the removed object occludes (if any)
+            for (auto id : object_map[req.id].occludes) {
+                // find that id in the dictionary, and remove the id from the occluded_by vec
+                std::remove(object_map[id].occluded_by.begin(),
+                            object_map[id].occluded_by.end(),
+                            req.id);
+            }
+
             std::cout << "erasing object of id " << req.id << "\r" << std::endl;
             object_map.erase(req.id);
 
@@ -210,9 +218,19 @@ class ObjectHandler {
                 obj.scale.y = val.second.dimensions[1];
                 obj.scale.z = val.second.dimensions[2];
                 obj.color.a = 1.0;
-                obj.color.r = 250./255.;
-                obj.color.g = 218./255.;
-                obj.color.b = 221./255.;
+
+                // if the object is occluded by anything, then color it pastel blue
+                if (val.second.occluded_by.size() > 0) {
+                    obj.color.r = 173./255.;
+                    obj.color.g = 216./255.;
+                    obj.color.b = 230./255.;
+                }
+                // if the object is not occluded by anything, then color is pastel pink
+                else {
+                    obj.color.r = 250./255.;
+                    obj.color.g = 218./255.;
+                    obj.color.b = 221./255.;
+                }
 
                 marker_arr.markers.push_back(obj);
             }
